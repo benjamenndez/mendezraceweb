@@ -708,11 +708,6 @@
 </head>
 <body>
 
-<div id="deviceToggle" style="position:fixed; top:12px; right:12px; z-index:9999; display:flex; gap:6px; background:#0d0e0c; border-radius:999px; padding:4px; box-shadow:0 4px 16px rgba(0,0,0,0.5);">
-  <button id="btnMobileView" onclick="showDevicePreview('mobile')" style="font-family:'Poppins',sans-serif; font-weight:700; font-size:0.72rem; padding:8px 14px; border-radius:999px; border:none; cursor:pointer; background:transparent; color:#8b8c86;">📱 Celular</button>
-  <button id="btnDesktopView" onclick="showDevicePreview('desktop')" style="font-family:'Poppins',sans-serif; font-weight:700; font-size:0.72rem; padding:8px 14px; border-radius:999px; border:none; cursor:pointer; background:#C1272D; color:#fff;">💻 Compu</button>
-</div>
-
 <div id="pageContent">
 
 <div class="site-topbar">
@@ -1756,42 +1751,5 @@ document.addEventListener('keydown', function(e){
 
 </div><!-- /pageContent -->
 
-<div id="mobileFrameWrap" style="display:none; position:fixed; inset:0; z-index:9000; background:#000; overflow:auto; padding:30px 0;">
-  <div style="width:390px; margin:0 auto; background:#111; padding:10px; border-radius:36px; box-shadow:0 0 0 2px #333, 0 20px 60px rgba(0,0,0,0.8);">
-    <iframe id="mobilePreviewFrame" style="width:100%; height:844px; border:none; border-radius:26px; background:#181917;"></iframe>
-  </div>
-</div>
-
-<script>
-function showDevicePreview(mode){
-  var content = document.getElementById('pageContent');
-  var wrap = document.getElementById('mobileFrameWrap');
-  var btnMobile = document.getElementById('btnMobileView');
-  var btnDesktop = document.getElementById('btnDesktopView');
-
-  if(mode === 'mobile'){
-    var frame = document.getElementById('mobilePreviewFrame');
-    var headHTML = document.head.innerHTML;
-    var bodyHTML = content.innerHTML;
-    var doc = '<!DOCTYPE html><html><head>' + headHTML + '</head><body>' + bodyHTML + '</body></html>';
-    frame.srcdoc = doc;
-    wrap.style.display = 'block';
-    content.style.display = 'none';
-    btnMobile.style.background = '#C1272D';
-    btnMobile.style.color = '#fff';
-    btnDesktop.style.background = 'transparent';
-    btnDesktop.style.color = '#8b8c86';
-    document.body.style.overflow = 'hidden';
-  } else {
-    wrap.style.display = 'none';
-    content.style.display = '';
-    btnDesktop.style.background = '#C1272D';
-    btnDesktop.style.color = '#fff';
-    btnMobile.style.background = 'transparent';
-    btnMobile.style.color = '#8b8c86';
-    document.body.style.overflow = '';
-  }
-}
-</script>
 </body>
 </html>
