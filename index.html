@@ -4489,10 +4489,18 @@ document.addEventListener('keydown', function(e){
     var byId = iId !== -1;
     function get(row, name) { var i = col(name); return i === -1 ? undefined : clean(row[i]); }
 
+    // Si una fila no tiene ID, se busca el producto por su nombre
+    var nameToId = {};
+    document.querySelectorAll(".cat-card[data-id]").forEach(function (cd) {
+      var t = cd.querySelector("h3"); if (t) nameToId[norm(t.textContent)] = cd.getAttribute("data-id");
+    });
+    if (typeof bikesData !== "undefined") Object.keys(bikesData).forEach(function (k) { nameToId[norm(bikesData[k].name)] = k; });
+
     var prod = {}, colors = {};
     for (var r = 1; r < rows.length; r++) {
       var row = rows[r];
       var key = byId ? clean(row[iId]) : norm(row[iP]);
+      if (byId && !key && iP !== -1) key = nameToId[norm(row[iP])] || "";
       if (!key) continue;
       var color = get(row, "color") || "";
       if (color && color !== "—" && color !== "-") {
