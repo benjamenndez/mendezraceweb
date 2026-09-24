@@ -4539,7 +4539,7 @@ document.addEventListener('keydown', function(e){
     }
   }
 
-  fetch(STOCK_CSV_URL, { cache: "no-store" })
+  fetch(STOCK_CSV_URL + "&t=" + Date.now(), { cache: "no-store" })
     .then(function (res) { return res.text(); })
     .then(function (t) { var rows = parseCSV(t); if (rows.length > 1) apply(rows); })
     .catch(function () { /* si falla, quedan los valores escritos en el HTML */ });
