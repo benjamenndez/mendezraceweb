@@ -3586,7 +3586,7 @@ function selectBikeColorByIndex(colorVariants, idx){
     if(s[0] === 'Colores'){
       val = cv.label;
     } else if(s[0] === 'Stock' && cv.stock !== undefined){
-      val = cv.stock ? 'En stock' : 'Sin stock';
+      val = cv.stockText || (cv.stock ? 'En stock' : 'Sin stock');
     }
     li.innerHTML = '<span>' + s[0] + '</span><span>' + val + '</span>';
     if(s[0] === 'Stock' && cv.stock === false){
@@ -3698,8 +3698,20 @@ function openHelmetDetail(cardEl){
   catCrumb.onclick = function(){ closeHelmetDetail(); goToCategory(catKey); };
 
   var stockEl = document.getElementById('helmetDetailStock');
-  stockEl.textContent = '✓ En stock';
-  stockEl.className = 'helmet-badge stock';
+  var cardStockTxt = '';
+  cardEl.querySelectorAll('.urgency').forEach(function(u){
+    if(/stock|pocos/i.test(u.textContent)) cardStockTxt = u.textContent.trim();
+  });
+  if(/sin stock/i.test(cardStockTxt)){
+    stockEl.textContent = '✕ Sin stock';
+    stockEl.className = 'helmet-badge stock out';
+  } else if(/pocos/i.test(cardStockTxt)){
+    stockEl.textContent = cardStockTxt;
+    stockEl.className = 'helmet-badge stock out';
+  } else {
+    stockEl.textContent = '✓ En stock';
+    stockEl.className = 'helmet-badge stock';
+  }
 
   var waMsg = encodeURIComponent('Hola! Quería consultar disponibilidad de ' + name + ' (' + price + ').');
   document.getElementById('helmetDetailWhatsapp').href = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + waMsg;
@@ -4395,5 +4407,143 @@ document.addEventListener('keydown', function(e){
 
 </div><!-- /pageContent -->
 
+<script>
+/* ===== Sincronización de precio y stock desde Google Sheets (mendezrace_stock) =====
+   Columnas (se leen por nombre de encabezado): Categoría, Producto, Descripción, Precio, Estado de Stock, Color
+   - Filas SIN Color  -> precio y stock general del producto (tarjeta + detalle)
+   - Filas CON Color  -> stock de ese color puntual (selector de color de bicis y cascos) */
+(function () {
+  var STOCK_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQfQLeacPgNOgY3zzhc-eftK4X5AsglPqZkMzO0ZlWYnxqf7j5GarcGs7Ctfi5g7nzdI-CiIJXbfrS_/pub?output=csv";
+
+  function parseCSV(text) {
+    var rows = [], row = [], field = "", inQ = false;
+    for (var i = 0; i < text.length; i++) {
+      var ch = text[i];
+      if (inQ) {
+        if (ch === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else { inQ = false; } }
+        else field += ch;
+      } else if (ch === '"') inQ = true;
+      else if (ch === ',') { row.push(field); field = ""; }
+      else if (ch === '\r') {}
+      else if (ch === '\n') { row.push(field); rows.push(row); row = []; field = ""; }
+      else field += ch;
+    }
+    if (field.length || row.length) { row.push(field); rows.push(row); }
+    return rows;
+  }
+  function norm(s) {
+    return (s || "").toString().replace(/\u00a0/g, " ").trim().toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ");
+  }
+  function fmtPrice(raw, space) {
+    var d = (raw || "").replace(/[^\d]/g, "");
+    if (!d) return null;
+    return (space ? "$ " : "$") + parseInt(d, 10).toLocaleString("es-AR");
+  }
+  function isOut(st) { return /sin stock/i.test(st || ""); }
+  function cardStock(st) {
+    var s = (st || "").trim();
+    if (isOut(s)) return { color: "#e05c5c", text: "✕ Sin stock" };
+    if (/pocos/i.test(s)) return { color: "", text: s };
+    return { color: "#7fbf7f", text: s || "✓ En stock" };
+  }
+  function plainStock(st) {
+    var s = (st || "").replace(/^[✓✕\s]+/, "").trim();
+    return s || "En stock";
+  }
+
+  function apply(rows) {
+    var h = rows[0].map(norm);
+    var iP = h.indexOf("producto"), iD = h.indexOf("descripcion"), iPr = h.indexOf("precio"),
+        iS = h.indexOf("estado de stock"), iC = h.indexOf("color");
+    if (iP === -1) return;
+
+    var prod = {}, colors = {};
+    for (var r = 1; r < rows.length; r++) {
+      var row = rows[r], name = norm(row[iP]);
+      if (!name) continue;
+      var color = iC !== -1 ? (row[iC] || "").trim() : "";
+      var entry = { desc: iD !== -1 ? norm(row[iD]) : "", precio: iPr !== -1 ? row[iPr] : "", stock: iS !== -1 ? (row[iS] || "") : "" };
+      if (color && color !== "—" && color !== "-") {
+        (colors[name] = colors[name] || {})[norm(color)] = entry.stock;
+      } else {
+        (prod[name] = prod[name] || []).push(entry);
+      }
+    }
+    function pick(name, desc) {
+      var list = prod[norm(name)];
+      if (!list) return null;
+      if (list.length > 1 && desc) {
+        for (var k = 0; k < list.length; k++) if (list[k].desc === norm(desc)) return list[k];
+      }
+      return list[0];
+    }
+
+    // Tarjetas del catálogo
+    document.querySelectorAll(".cat-card").forEach(function (card) {
+      var h3 = card.querySelector("h3"); if (!h3) return;
+      var d = card.querySelector(".desc");
+      var e = pick(h3.textContent, d ? d.textContent : "");
+      if (e) {
+        var pe = card.querySelector(".price");
+        if (pe) pe.textContent = fmtPrice(e.precio) || "Consultar precio";
+        var se = card.querySelector(".urgency.low-stock");
+        if (!se) {
+          var urg = card.querySelectorAll(".urgency");
+          urg.forEach(function (u) { if (/stock|pocos/i.test(u.textContent)) se = u; });
+          if (!se && urg.length && e.stock.trim()) { se = document.createElement("div"); urg[urg.length - 1].after(se); }
+          if (se) se.className = "urgency low-stock";
+        }
+        if (se && e.stock.trim()) {
+          var st = cardStock(e.stock);
+          se.textContent = st.text; se.style.color = st.color; se.style.visibility = "";
+        }
+      }
+      // Stock por color de cascos (data-colors)
+      var cMap = colors[norm(h3.textContent)], dc = card.getAttribute("data-colors");
+      if (cMap && dc) {
+        try {
+          var arr = JSON.parse(dc), changed = false;
+          arr.forEach(function (cv) {
+            var v = cMap[norm(cv.label)];
+            if (v !== undefined && v.trim()) { cv.stock = !isOut(v); changed = true; }
+          });
+          if (changed) card.setAttribute("data-colors", JSON.stringify(arr));
+        } catch (err) {}
+      }
+    });
+
+    // Detalle de bicis Twitter (bikesData)
+    if (typeof bikesData !== "undefined") {
+      Object.keys(bikesData).forEach(function (key) {
+        var b = bikesData[key], e = pick(b.name);
+        if (e) {
+          b.price = fmtPrice(e.precio, true) || "Consultar precio";
+          if (e.stock.trim() && b.specs) {
+            var found = false;
+            b.specs.forEach(function (s) { if (s[0] === "Stock") { s[1] = plainStock(e.stock); found = true; } });
+            if (!found) {
+              var at = b.specs.findIndex(function (s) { return s[0] === "Categoría"; });
+              b.specs.splice(at === -1 ? b.specs.length : at, 0, ["Stock", plainStock(e.stock)]);
+            }
+          }
+        }
+        var cMap = colors[norm(b.name)];
+        if (cMap && b.colors) {
+          b.colors.forEach(function (cv) {
+            var v = cMap[norm(cv.label)];
+            if (v !== undefined && v.trim()) { cv.stock = !isOut(v); cv.stockText = plainStock(v); }
+          });
+        }
+      });
+    }
+  }
+
+  fetch(STOCK_CSV_URL, { cache: "no-store" })
+    .then(function (res) { return res.text(); })
+    .then(function (t) { var rows = parseCSV(t); if (rows.length > 1) apply(rows); })
+    .catch(function () { /* si falla, quedan los valores escritos en el HTML */ });
+})();
+</script>
 </body>
 </html>
