@@ -54,6 +54,20 @@
   .hint{color:#9a9c94; font-size:0.78rem; margin-top:4px;}
   .save-bar{position:sticky; bottom:0; background:var(--ink); padding:16px 0; border-top:1px solid #333; margin-top:20px; display:flex; align-items:center; gap:16px;}
   .loading{color:#9a9c94; padding:40px 0; text-align:center;}
+  .maint-box{border:1px solid #333; border-radius:12px; padding:18px 20px; margin-bottom:10px;}
+  .maint-row{display:flex; align-items:center; justify-content:space-between; gap:16px;}
+  .maint-row strong{font-size:0.95rem;}
+  .switch{position:relative; display:inline-block; width:44px; height:26px; flex-shrink:0;}
+  .switch input{opacity:0; width:0; height:0;}
+  .switch .slider{position:absolute; inset:0; background:#333; border-radius:999px; cursor:pointer; transition:background .15s;}
+  .switch .slider::before{content:''; position:absolute; width:20px; height:20px; left:3px; top:3px; background:#fff; border-radius:999px; transition:transform .15s;}
+  .switch input:checked + .slider{background:var(--accent);}
+  .switch input:checked + .slider::before{transform:translateX(18px);}
+  .maint-box textarea{
+    width:100%; margin-top:14px; padding:10px 12px; border-radius:8px; border:1px solid #333;
+    background:#0d0e0c; color:var(--paper); font-family:'Poppins',Arial,sans-serif; font-size:0.85rem; resize:vertical;
+  }
+  .maint-box .save-bar{position:static; border-top:none; padding:12px 0 0; margin-top:10px;}
 </style>
 </head>
 <body>
@@ -67,7 +81,24 @@
 </div>
 
 <div id="panel">
-  <h1>Stock de productos</h1>
+  <h1>Estado de la tienda</h1>
+  <div class="maint-box">
+    <div class="maint-row">
+      <strong>Modo mantenimiento</strong>
+      <label class="switch">
+        <input type="checkbox" id="maintToggle" onchange="toggleMaintenance()">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="hint">Cuando está activado, cualquiera que entre a la web ve un aviso de "volvemos pronto" en vez del sitio. Vos seguís pudiendo entrar acá al admin normalmente.</div>
+    <textarea id="maintMessage" rows="2" placeholder="Mensaje que ve el cliente (opcional)"></textarea>
+    <div class="save-bar">
+      <button type="button" onclick="saveMaintenanceMessage()">Guardar mensaje</button>
+      <div class="msg" id="maintMsg"></div>
+    </div>
+  </div>
+
+  <h1 style="margin-top:34px;">Stock de productos</h1>
   <div class="sub">Dejá el campo vacío para que un producto quede sin control de stock (siempre disponible). Cargá un número para empezar a controlarlo. Si entra un talle nuevo que la bici no tenía, agregalo desde el modelo correspondiente — va a aparecer también como opción para comprar en la web.</div>
   <div class="loading" id="loadingMsg">Cargando catálogo...</div>
   <div id="groupsWrap"></div>
@@ -101,6 +132,56 @@ async function callAdminStock(body){
   return res;
 }
 
+async function callAdminSite(body){
+  var res = await fetch(CHECKOUT_API_URL + '/admin-site', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(Object.assign({ password: adminPassword }, body))
+  });
+  return res;
+}
+
+async function loadMaintenanceStatus(){
+  try {
+    var res = await callAdminSite({});
+    if(!res.ok) return;
+    var data = await res.json();
+    document.getElementById('maintToggle').checked = !!data.maintenance;
+    document.getElementById('maintMessage').value = data.message || '';
+  } catch(e){}
+}
+
+async function toggleMaintenance(){
+  var on = document.getElementById('maintToggle').checked;
+  var msg = document.getElementById('maintMsg');
+  msg.style.color = '#9a9c94';
+  msg.textContent = on ? 'Activando...' : 'Desactivando...';
+  try {
+    await callAdminSite({ action: 'set', on: on, message: document.getElementById('maintMessage').value });
+    msg.style.color = '#4caf50';
+    msg.textContent = on ? 'Tienda en mantenimiento ✓' : 'Tienda visible de nuevo ✓';
+  } catch(e){
+    msg.style.color = '#c1272d';
+    msg.textContent = 'No se pudo actualizar, probá de nuevo.';
+    document.getElementById('maintToggle').checked = !on;
+  }
+}
+
+async function saveMaintenanceMessage(){
+  var on = document.getElementById('maintToggle').checked;
+  var msg = document.getElementById('maintMsg');
+  msg.style.color = '#9a9c94';
+  msg.textContent = 'Guardando...';
+  try {
+    await callAdminSite({ action: 'set', on: on, message: document.getElementById('maintMessage').value });
+    msg.style.color = '#4caf50';
+    msg.textContent = 'Guardado ✓';
+  } catch(e){
+    msg.style.color = '#c1272d';
+    msg.textContent = 'No se pudo guardar, probá de nuevo.';
+  }
+}
+
 async function loadEverything(){
   try {
     var stockRes = await callAdminStock({});
@@ -118,6 +199,7 @@ async function loadEverything(){
 
     document.getElementById('gate').style.display = 'none';
     document.getElementById('panel').style.display = 'block';
+    loadMaintenanceStatus();
 
     var pageRes = await fetch('/');
     var html = await pageRes.text();
