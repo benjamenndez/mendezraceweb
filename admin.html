@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mendezrace · Admin de stock</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  :root{ --ink:#181917; --paper:#F4F3EE; --accent:#c1272d; --line:#e3e1d8; --steel:#6b6d66; }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:'Poppins',Arial,sans-serif; background:var(--ink); color:var(--paper);
+    min-height:100vh; padding:24px;
+  }
+  h1{font-size:1.3rem; margin:0 0 4px;}
+  .sub{color:#9a9c94; font-size:0.85rem; margin-bottom:24px;}
+  .gate{max-width:360px; margin:80px auto; text-align:center;}
+  .gate input{
+    width:100%; padding:12px 14px; border-radius:8px; border:1px solid var(--line);
+    background:#0d0e0c; color:var(--paper); font-size:1rem; margin:14px 0;
+  }
+  .gate button, .save-bar button{
+    background:var(--accent); color:#fff; border:none; border-radius:999px;
+    padding:12px 24px; font-weight:600; cursor:pointer; font-size:0.9rem;
+  }
+  .gate .msg, .save-bar .msg{color:var(--accent); font-size:0.85rem; min-height:18px; margin-top:8px;}
+  #panel{display:none; max-width:720px; margin:0 auto;}
+  table{width:100%; border-collapse:collapse; margin-top:12px;}
+  th, td{text-align:left; padding:10px 8px; border-bottom:1px solid #333;}
+  th{color:#9a9c94; font-size:0.72rem; text-transform:uppercase; font-weight:600;}
+  td.name{font-size:0.9rem;}
+  td.name small{display:block; color:#9a9c94; font-size:0.78rem;}
+  td input{
+    width:80px; padding:8px 10px; border-radius:6px; border:1px solid #333;
+    background:#0d0e0c; color:var(--paper); font-size:0.9rem;
+  }
+  .hint{color:#9a9c94; font-size:0.78rem; margin-top:4px;}
+  .save-bar{position:sticky; bottom:0; background:var(--ink); padding:16px 0; border-top:1px solid #333; margin-top:20px; display:flex; align-items:center; gap:16px;}
+  .loading{color:#9a9c94; padding:40px 0; text-align:center;}
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate">
+  <h1>Admin de stock</h1>
+  <div class="sub">mendezrace.bike</div>
+  <input type="password" id="pwInput" placeholder="Contraseña">
+  <button type="button" onclick="login()">Entrar</button>
+  <div class="msg" id="gateMsg"></div>
+</div>
+
+<div id="panel">
+  <h1>Stock de productos</h1>
+  <div class="sub">Dejá el campo vacío para que un producto quede sin control de stock (siempre disponible). Cargá un número para empezar a controlarlo.</div>
+  <div class="loading" id="loadingMsg">Cargando catálogo...</div>
+  <table id="stockTable" style="display:none;">
+    <thead><tr><th>Producto</th><th>Stock</th></tr></thead>
+    <tbody id="stockBody"></tbody>
+  </table>
+  <div class="save-bar" id="saveBar" style="display:none;">
+    <button type="button" onclick="saveStock()">Guardar cambios</button>
+    <div class="msg" id="saveMsg"></div>
+  </div>
+</div>
+
+<script>
+var CHECKOUT_API_URL = 'https://tiny-pasca-2c9d60.netlify.app/.netlify/functions';
+var adminPassword = '';
+var products = [];
+
+function login(){
+  var pw = document.getElementById('pwInput').value;
+  if(!pw){ return; }
+  adminPassword = pw;
+  document.getElementById('gateMsg').textContent = 'Verificando...';
+  loadEverything();
+}
+
+async function loadEverything(){
+  try {
+    var stockRes = await fetch(CHECKOUT_API_URL + '/admin-stock', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: adminPassword })
+    });
+    if(stockRes.status === 401){
+      document.getElementById('gateMsg').textContent = 'Contraseña incorrecta.';
+      return;
+    }
+    if(!stockRes.ok){
+      document.getElementById('gateMsg').textContent = 'Error de conexión, probá de nuevo.';
+      return;
+    }
+    var stockData = await stockRes.json();
+
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('panel').style.display = 'block';
+
+    var pageRes = await fetch('/');
+    var html = await pageRes.text();
+    var match = html.match(/var bikesData\s*=\s*(\{[\s\S]*?\});\s*\n/);
+    if(!match){
+      document.getElementById('loadingMsg').textContent = 'No se pudo leer el catálogo de productos.';
+      return;
+    }
+    var bikesData = new Function('return ' + match[1])();
+
+    products = [];
+    Object.keys(bikesData).forEach(function(key){
+      var b = bikesData[key];
+      if(b.colors && b.colors.length){
+        b.colors.forEach(function(cv){
+          products.push({ id: key + '::' + cv.label, name: b.name, color: cv.label });
+        });
+      } else {
+        products.push({ id: key, name: b.name, color: null });
+      }
+    });
+
+    renderTable(stockData.config || {});
+  } catch(e){
+    document.getElementById('loadingMsg').textContent = 'Error inesperado: ' + e.message;
+  }
+}
+
+function renderTable(config){
+  var body = document.getElementById('stockBody');
+  body.innerHTML = '';
+  products.forEach(function(p){
+    var tr = document.createElement('tr');
+    var qty = Object.prototype.hasOwnProperty.call(config, p.id) ? config[p.id] : '';
+    tr.innerHTML =
+      '<td class="name">' + p.name + (p.color ? '<small>' + p.color + '</small>' : '') + '</td>' +
+      '<td><input type="number" min="0" step="1" data-id="' + p.id + '" value="' + qty + '" placeholder="Ilimitado"></td>';
+    body.appendChild(tr);
+  });
+  document.getElementById('loadingMsg').style.display = 'none';
+  document.getElementById('stockTable').style.display = 'table';
+  document.getElementById('saveBar').style.display = 'flex';
+}
+
+async function saveStock(){
+  var inputs = document.querySelectorAll('#stockBody input');
+  var updates = {};
+  inputs.forEach(function(inp){
+    updates[inp.dataset.id] = inp.value === '' ? null : inp.value;
+  });
+  var msg = document.getElementById('saveMsg');
+  msg.style.color = '#9a9c94';
+  msg.textContent = 'Guardando...';
+  try {
+    var res = await fetch(CHECKOUT_API_URL + '/admin-stock', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: adminPassword, action: 'update', updates: updates })
+    });
+    if(!res.ok){ throw new Error('No se pudo guardar'); }
+    msg.style.color = '#4caf50';
+    msg.textContent = 'Guardado ✓';
+  } catch(e){
+    msg.style.color = '#c1272d';
+    msg.textContent = 'Error al guardar, probá de nuevo.';
+  }
+}
+
+document.getElementById('pwInput').addEventListener('keydown', function(e){
+  if(e.key === 'Enter') login();
+});
+</script>
+</body>
+</html>
