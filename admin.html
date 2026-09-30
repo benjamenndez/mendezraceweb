@@ -105,16 +105,26 @@ async function loadEverything(){
     }
     var bikesData = new Function('return ' + match[1])();
 
+    var sizesByKey = {};
+    var sizesRe = /data-id="([^"]+)"[^>]*data-sizes="([^"]*)"/g;
+    var sm;
+    while((sm = sizesRe.exec(html))){
+      var sizes = sm[2].split(' ').map(function(s){ return s.trim(); }).filter(Boolean);
+      if(sizes.length) sizesByKey[sm[1]] = sizes;
+    }
+
     products = [];
     Object.keys(bikesData).forEach(function(key){
       var b = bikesData[key];
-      if(b.colors && b.colors.length){
-        b.colors.forEach(function(cv){
-          products.push({ id: key + '::' + cv.label, name: b.name, color: cv.label });
+      var colors = (b.colors && b.colors.length) ? b.colors.map(function(cv){ return cv.label; }) : [null];
+      var sizes = sizesByKey[key] || [null];
+      colors.forEach(function(color){
+        sizes.forEach(function(size){
+          var id = key + (color ? '::' + color : '') + (size ? '::' + size : '');
+          var label = b.name + [color, size ? 'Talle ' + size : null].filter(Boolean).map(function(x){ return ' — ' + x; }).join('');
+          products.push({ id: id, name: b.name, color: color, size: size, label: label });
         });
-      } else {
-        products.push({ id: key, name: b.name, color: null });
-      }
+      });
     });
 
     renderTable(stockData.config || {});
@@ -129,8 +139,9 @@ function renderTable(config){
   products.forEach(function(p){
     var tr = document.createElement('tr');
     var qty = Object.prototype.hasOwnProperty.call(config, p.id) ? config[p.id] : '';
+    var extra = [p.color, p.size ? 'Talle ' + p.size : null].filter(Boolean).join(' · ');
     tr.innerHTML =
-      '<td class="name">' + p.name + (p.color ? '<small>' + p.color + '</small>' : '') + '</td>' +
+      '<td class="name">' + p.name + (extra ? '<small>' + extra + '</small>' : '') + '</td>' +
       '<td><input type="number" min="0" step="1" data-id="' + p.id + '" value="' + qty + '" placeholder="Ilimitado"></td>';
     body.appendChild(tr);
   });
