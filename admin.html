@@ -270,6 +270,11 @@ async function loadEverything(){
       document.getElementById('gateMsg').textContent = 'Contraseña incorrecta.';
       return;
     }
+    if(stockRes.status === 429){
+      var errData = await stockRes.json().catch(function(){ return {}; });
+      document.getElementById('gateMsg').textContent = errData.error || 'Demasiados intentos. Esperá unos minutos.';
+      return;
+    }
     if(!stockRes.ok){
       document.getElementById('gateMsg').textContent = 'Error de conexión, probá de nuevo.';
       return;
