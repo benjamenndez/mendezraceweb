@@ -96,6 +96,15 @@
       <button type="button" onclick="saveMaintenanceMessage()">Guardar mensaje</button>
       <div class="msg" id="maintMsg"></div>
     </div>
+
+    <div class="maint-row" style="margin-top:18px; padding-top:16px; border-top:1px solid #333;">
+      <strong>Ver la web normal en este navegador</strong>
+      <label class="switch">
+        <input type="checkbox" id="previewToggle" onchange="togglePreview()">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="hint">Con esto activado, en este mismo navegador vas a poder abrir <strong>mendezrace.bike</strong> y ver la web funcionando normal aunque el mantenimiento esté activado — el resto de la gente sigue viendo el aviso. Es por navegador: si entrás desde el celular, activalo ahí también.</div>
   </div>
 
   <h1 style="margin-top:34px;">Stock de productos</h1>
@@ -148,6 +157,17 @@ async function loadMaintenanceStatus(){
     var data = await res.json();
     document.getElementById('maintToggle').checked = !!data.maintenance;
     document.getElementById('maintMessage').value = data.message || '';
+  } catch(e){}
+  try {
+    document.getElementById('previewToggle').checked = localStorage.getItem('mrAdminPreview') === '1';
+  } catch(e){}
+}
+
+function togglePreview(){
+  var on = document.getElementById('previewToggle').checked;
+  try {
+    if(on) localStorage.setItem('mrAdminPreview', '1');
+    else localStorage.removeItem('mrAdminPreview');
   } catch(e){}
 }
 
