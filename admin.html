@@ -3,19 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mendezrace · Admin de stock</title>
+<title>Mendezrace · Admin</title>
 <meta name="robots" content="noindex, nofollow">
 <style>
   :root{ --ink:#181917; --paper:#F4F3EE; --accent:#c1272d; --line:#e3e1d8; --steel:#6b6d66; }
   *{box-sizing:border-box;}
   body{
     margin:0; font-family:'Poppins',Arial,sans-serif; background:var(--ink); color:var(--paper);
-    min-height:100vh; padding:24px;
+    min-height:100vh;
   }
-  h1{font-size:1.3rem; margin:0 0 4px;}
+  h1{font-size:1.25rem; margin:0 0 4px;}
   h3{font-size:1rem; margin:0;}
-  .sub{color:#9a9c94; font-size:0.85rem; margin-bottom:24px;}
-  .gate{max-width:360px; margin:80px auto; text-align:center;}
+  .sub{color:#9a9c94; font-size:0.85rem; margin-bottom:18px;}
+  .gate{max-width:360px; margin:80px auto; text-align:center; padding:24px;}
   .gate input{
     width:100%; padding:12px 14px; border-radius:8px; border:1px solid var(--line);
     background:#0d0e0c; color:var(--paper); font-size:1rem; margin:14px 0;
@@ -25,9 +25,50 @@
     padding:10px 20px; font-weight:600; cursor:pointer; font-size:0.85rem;
   }
   .gate .msg, .save-bar .msg{color:var(--accent); font-size:0.85rem; min-height:18px; margin-top:8px;}
-  #panel{display:none; max-width:760px; margin:0 auto;}
-  .bike-group{margin-top:34px; border-top:1px solid #333; padding-top:14px;}
-  .bike-group-head{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;}
+
+  #panel{display:none;}
+  .app-layout{display:flex; align-items:flex-start; max-width:1180px; margin:0 auto;}
+
+  .sidebar{
+    width:220px; flex-shrink:0; position:sticky; top:0;
+    max-height:100vh; overflow-y:auto;
+    padding:24px 12px 100px; border-right:1px solid #2a2a26;
+  }
+  .sidebar-brand{font-weight:700; font-size:1rem; padding:0 10px 18px;}
+  .sidebar-brand span{color:var(--accent);}
+  .sidebar-title{color:#6b6d66; font-size:0.66rem; text-transform:uppercase; font-weight:700; letter-spacing:0.05em; margin:18px 0 8px; padding:0 10px;}
+  .sidebar-title:first-of-type{margin-top:0;}
+  .nav-item{
+    display:block; width:100%; text-align:left; background:none; border:none; color:var(--paper);
+    padding:9px 10px; border-radius:8px; font-size:0.84rem; cursor:pointer; margin-bottom:2px;
+  }
+  .nav-item:hover{background:#222220;}
+  .nav-item.active{background:var(--accent); color:#fff; font-weight:600;}
+  .nav-sep{border:none; border-top:1px solid #2a2a26; margin:16px 10px;}
+
+  .content{flex:1; min-width:0; padding:24px 28px 110px;}
+  .content-section{display:none;}
+  .content-section.active{display:block;}
+
+  .cat-search{
+    width:100%; max-width:380px; padding:10px 14px; border-radius:8px; border:1px solid #333;
+    background:#0d0e0c; color:var(--paper); font-size:0.88rem; margin:4px 0 18px;
+  }
+  .cat-search:focus{outline:none; border-color:var(--accent);}
+  .cat-count{color:#6b6d66; font-size:0.78rem; margin-bottom:14px;}
+
+  .accordion-item{border:1px solid #2a2a26; border-radius:10px; margin-bottom:10px; overflow:hidden; background:#121210;}
+  .accordion-item summary{
+    padding:13px 16px; cursor:pointer; font-size:0.88rem; font-weight:600; list-style:none;
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+  }
+  .accordion-item summary::-webkit-details-marker{display:none;}
+  .accordion-item summary .chev{color:#6b6d66; font-size:0.75rem; transition:transform .15s; flex-shrink:0;}
+  .accordion-item[open] summary .chev{transform:rotate(90deg);}
+  .accordion-item summary .sname{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .accordion-body{padding:4px 16px 16px; border-top:1px solid #2a2a26;}
+
+  .bike-group-head{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:12px;}
   .add-size-form{display:flex; gap:8px; align-items:center;}
   .add-size-form input{
     width:70px; padding:8px 10px; border-radius:6px; border:1px solid #333;
@@ -43,18 +84,19 @@
     width:20px; height:20px; border-radius:999px; line-height:1;
   }
   .extra-size-chip button:hover{background:#3a3a33; color:var(--paper);}
-  table{width:100%; border-collapse:collapse; margin-top:12px;}
-  th, td{text-align:left; padding:10px 8px; border-bottom:1px solid #333;}
-  th{color:#9a9c94; font-size:0.72rem; text-transform:uppercase; font-weight:600;}
-  td.name{font-size:0.88rem;}
+
+  table{width:100%; border-collapse:collapse; margin-top:10px;}
+  th, td{text-align:left; padding:9px 8px; border-bottom:1px solid #26261f;}
+  th{color:#9a9c94; font-size:0.7rem; text-transform:uppercase; font-weight:600;}
+  td.name{font-size:0.86rem;}
   td input{
     width:80px; padding:8px 10px; border-radius:6px; border:1px solid #333;
     background:#0d0e0c; color:var(--paper); font-size:0.9rem;
   }
   .hint{color:#9a9c94; font-size:0.78rem; margin-top:4px;}
-  .save-bar{position:sticky; bottom:0; background:var(--ink); padding:16px 0; border-top:1px solid #333; margin-top:20px; display:flex; align-items:center; gap:16px;}
   .loading{color:#9a9c94; padding:40px 0; text-align:center;}
-  .maint-box{border:1px solid #333; border-radius:12px; padding:18px 20px; margin-bottom:10px;}
+
+  .maint-box{border:1px solid #333; border-radius:12px; padding:18px 20px; margin-bottom:10px; max-width:560px;}
   .maint-row{display:flex; align-items:center; justify-content:space-between; gap:16px;}
   .maint-row strong{font-size:0.95rem;}
   .switch{position:relative; display:inline-block; width:44px; height:26px; flex-shrink:0;}
@@ -67,13 +109,30 @@
     width:100%; margin-top:14px; padding:10px 12px; border-radius:8px; border:1px solid #333;
     background:#0d0e0c; color:var(--paper); font-family:'Poppins',Arial,sans-serif; font-size:0.85rem; resize:vertical;
   }
-  .maint-box .save-bar{position:static; border-top:none; padding:12px 0 0; margin-top:10px;}
+  .maint-box .save-bar{position:static; border-top:none; padding:12px 0 0; margin-top:10px; display:flex; align-items:center; gap:16px;}
+
+  .save-bar-fixed{
+    position:fixed; left:0; right:0; bottom:0; z-index:80;
+    background:var(--ink); border-top:1px solid #2a2a26; padding:14px 28px;
+    display:none; align-items:center; gap:16px;
+  }
+  .save-bar-fixed.show{display:flex;}
+
+  .sheet-table-wrap{overflow-x:auto; max-width:100%;}
+  .sheet-table{min-width:900px; font-size:0.78rem;}
+  .sheet-table th, .sheet-table td{white-space:nowrap; padding:7px 10px;}
+
+  @media (max-width:860px){
+    .app-layout{flex-direction:column;}
+    .sidebar{position:static; width:100%; max-height:none; border-right:none; border-bottom:1px solid #2a2a26; padding:16px 16px 10px;}
+    .content{padding:20px 16px 110px;}
+  }
 </style>
 </head>
 <body>
 
 <div class="gate" id="gate">
-  <h1>Admin de stock</h1>
+  <h1>Admin</h1>
   <div class="sub">mendezrace.bike</div>
   <input type="password" id="pwInput" placeholder="Contraseña">
   <button type="button" onclick="login()">Entrar</button>
@@ -81,48 +140,88 @@
 </div>
 
 <div id="panel">
-  <h1>Estado de la tienda</h1>
-  <div class="maint-box">
-    <div class="maint-row">
-      <strong>Modo mantenimiento</strong>
-      <label class="switch">
-        <input type="checkbox" id="maintToggle" onchange="toggleMaintenance()">
-        <span class="slider"></span>
-      </label>
-    </div>
-    <div class="hint">Cuando está activado, cualquiera que entre a la web ve un aviso de "volvemos pronto" en vez del sitio. Vos seguís pudiendo entrar acá al admin normalmente.</div>
-    <textarea id="maintMessage" rows="2" placeholder="Mensaje que ve el cliente (opcional)"></textarea>
-    <div class="save-bar">
-      <button type="button" onclick="saveMaintenanceMessage()">Guardar mensaje</button>
-      <div class="msg" id="maintMsg"></div>
-    </div>
+  <div class="app-layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-brand">mendez<span>race</span> admin</div>
+      <div class="sidebar-title">General</div>
+      <button type="button" class="nav-item" data-section="maint" onclick="showSection('maint')">Estado de la tienda</button>
+      <div class="sidebar-title">Categorías</div>
+      <div id="categoryNavWrap"></div>
+      <hr class="nav-sep">
+      <button type="button" class="nav-item" data-section="sheet" onclick="showSection('sheet')">Planilla de cálculo</button>
+    </nav>
 
-    <div class="maint-row" style="margin-top:18px; padding-top:16px; border-top:1px solid #333;">
-      <strong>Ver la web normal en este navegador</strong>
-      <label class="switch">
-        <input type="checkbox" id="previewToggle" onchange="togglePreview()">
-        <span class="slider"></span>
-      </label>
-    </div>
-    <div class="hint">Con esto activado, en este mismo navegador vas a poder abrir <strong>mendezrace.bike</strong> y ver la web funcionando normal aunque el mantenimiento esté activado — el resto de la gente sigue viendo el aviso. Es por navegador: si entrás desde el celular, activalo ahí también.</div>
+    <main class="content">
+      <div class="loading" id="loadingMsg">Cargando catálogo...</div>
+
+      <section class="content-section" data-section="maint" id="section-maint">
+        <h1>Estado de la tienda</h1>
+        <div class="maint-box">
+          <div class="maint-row">
+            <strong>Modo mantenimiento</strong>
+            <label class="switch">
+              <input type="checkbox" id="maintToggle" onchange="toggleMaintenance()">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="hint">Cuando está activado, cualquiera que entre a la web ve un aviso de "volvemos pronto" en vez del sitio. Vos seguís pudiendo entrar acá al admin normalmente.</div>
+          <textarea id="maintMessage" rows="2" placeholder="Mensaje que ve el cliente (opcional)"></textarea>
+          <div class="save-bar">
+            <button type="button" onclick="saveMaintenanceMessage()">Guardar mensaje</button>
+            <div class="msg" id="maintMsg"></div>
+          </div>
+
+          <div class="maint-row" style="margin-top:18px; padding-top:16px; border-top:1px solid #333;">
+            <strong>Ver la web normal en este navegador</strong>
+            <label class="switch">
+              <input type="checkbox" id="previewToggle" onchange="togglePreview()">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="hint">Con esto activado, en este mismo navegador vas a poder abrir <strong>mendezrace.bike</strong> y ver la web funcionando normal aunque el mantenimiento esté activado — el resto de la gente sigue viendo el aviso. Es por navegador: si entrás desde el celular, activalo ahí también.</div>
+        </div>
+      </section>
+
+      <div id="categorySectionsWrap"></div>
+
+      <section class="content-section" data-section="sheet" id="section-sheet">
+        <h1>Planilla de cálculo</h1>
+        <div class="sub">Esto es lo que tiene cargado ahora mismo la hoja de Google Sheets que todavía usa la web para precios/descripciones/stock de algunos productos. Es solo para consulta — no se edita desde acá.</div>
+        <input type="search" class="cat-search" id="sheetSearch" placeholder="Buscar en la planilla..." oninput="filterSheet(this.value)">
+        <div class="loading" id="sheetLoading">Cargando planilla...</div>
+        <div class="sheet-table-wrap" id="sheetTableWrap" style="display:none;"></div>
+      </section>
+    </main>
   </div>
 
-  <h1 style="margin-top:34px;">Stock de productos</h1>
-  <div class="sub">Dejá el campo vacío para que un producto quede sin control de stock (siempre disponible). Cargá un número para empezar a controlarlo. Si entra un talle nuevo que la bici no tenía, agregalo desde el modelo correspondiente — va a aparecer también como opción para comprar en la web.</div>
-  <div class="loading" id="loadingMsg">Cargando catálogo...</div>
-  <div id="groupsWrap"></div>
-  <div class="save-bar" id="saveBar" style="display:none;">
-    <button type="button" onclick="saveStock()">Guardar cambios</button>
+  <div class="save-bar-fixed" id="saveBar">
+    <button type="button" onclick="saveStock()">Guardar cambios de stock</button>
     <div class="msg" id="saveMsg"></div>
   </div>
 </div>
 
 <script>
 var CHECKOUT_API_URL = 'https://tiny-pasca-2c9d60.netlify.app/.netlify/functions';
+var STOCK_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQfQLeacPgNOgY3zzhc-eftK4X5AsglPqZkMzO0ZlWYnxqf7j5GarcGs7Ctfi5g7nzdI-CiIJXbfrS_/pub?output=csv';
 var adminPassword = '';
-var bikesInfo = {}; // key -> { name, colors:[...], baseSizes:[...] }
-var extraSizes = {}; // key -> [...] (cargados a mano desde el admin)
+var bikesInfo = {};      // key -> { name, colors:[...], baseSizes:[...] }
+var extraSizes = {};     // key -> [...] (talles agregados a mano desde el admin)
 var stockConfig = {};
+var extraCategories = {};// catKey -> [{id, name, colors:[...]}]
+var sheetRows = [];      // [[header...], [row...], ...]
+
+var CATEGORY_DEFS = [
+  { key: 'bikes', label: 'Bicis Twitter', isBikes: true },
+  { key: 'cascos', label: 'Cascos' },
+  { key: 'protecciones', label: 'Protecciones' },
+  { key: 'componentes', label: 'Componentes' },
+  { key: 'repuestos', label: 'Repuestos' },
+  { key: 'bicis', label: 'Bicicross' },
+  { key: 'cuadros', label: 'Cuadros' },
+  { key: 'horquilla', label: 'Horquillas' },
+  { key: 'cubiertas', label: 'Cubiertas' },
+  { key: 'ruedas-y-partes', label: 'Ruedas y Partes' }
+];
 
 function login(){
   var pw = document.getElementById('pwInput').value;
@@ -149,6 +248,345 @@ async function callAdminSite(body){
   });
   return res;
 }
+
+function showSection(key){
+  document.querySelectorAll('.content-section').forEach(function(el){
+    el.classList.toggle('active', el.dataset.section === key);
+  });
+  document.querySelectorAll('.nav-item').forEach(function(el){
+    el.classList.toggle('active', el.dataset.section === key);
+  });
+  var saveBar = document.getElementById('saveBar');
+  saveBar.classList.toggle('show', key !== 'sheet');
+  if(key === 'sheet' && !sheetRows.length) loadSheet();
+}
+
+/* ---------- Login + carga inicial ---------- */
+
+async function loadEverything(){
+  try {
+    var stockRes = await callAdminStock({});
+    if(stockRes.status === 401){
+      document.getElementById('gateMsg').textContent = 'Contraseña incorrecta.';
+      return;
+    }
+    if(!stockRes.ok){
+      document.getElementById('gateMsg').textContent = 'Error de conexión, probá de nuevo.';
+      return;
+    }
+    var stockData = await stockRes.json();
+    stockConfig = stockData.config || {};
+    extraSizes = stockData.extraSizes || {};
+
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('panel').style.display = 'block';
+    loadMaintenanceStatus();
+
+    var pageRes = await fetch('/');
+    var html = await pageRes.text();
+
+    var match = html.match(/var bikesData\s*=\s*(\{[\s\S]*?\});\s*\n/);
+    if(!match){
+      document.getElementById('loadingMsg').textContent = 'No se pudo leer el catálogo de productos.';
+      return;
+    }
+    var bikesData = new Function('return ' + match[1])();
+
+    var sizesByKey = {};
+    var sizesRe = /data-id="([^"]+)"[^>]*data-sizes="([^"]*)"/g;
+    var sm;
+    while((sm = sizesRe.exec(html))){
+      var sizes = sm[2].split(' ').map(function(s){ return s.trim(); }).filter(Boolean);
+      if(sizes.length) sizesByKey[sm[1]] = sizes;
+    }
+
+    bikesInfo = {};
+    Object.keys(bikesData).forEach(function(key){
+      var b = bikesData[key];
+      bikesInfo[key] = {
+        name: b.name,
+        colors: (b.colors && b.colors.length) ? b.colors.map(function(cv){ return cv.label; }) : [null],
+        baseSizes: sizesByKey[key] || []
+      };
+    });
+
+    extraCategories = parseExtraProducts(html);
+
+    buildSidebar();
+    renderAllCategorySections();
+    document.getElementById('loadingMsg').style.display = 'none';
+    showSection('maint');
+  } catch(e){
+    document.getElementById('loadingMsg').textContent = 'Error inesperado: ' + e.message;
+  }
+}
+
+function parseExtraProducts(html){
+  var byCat = {};
+  var cardRe = /<div data-id="([^"]+)" class="cat-card cat-card-extra"([^>]*)>/g;
+  var starts = [];
+  var m;
+  while((m = cardRe.exec(html))){
+    starts.push({ id: m[1], attrs: m[2], idx: cardRe.lastIndex });
+  }
+  starts.forEach(function(s, i){
+    var end = (i + 1 < starts.length) ? starts[i+1].idx : html.length;
+    var chunk = html.slice(s.idx, Math.min(end, s.idx + 2000000));
+    var catM = s.attrs.match(/data-cat="([^"]+)"/);
+    var cat = catM ? catM[1] : null;
+    if(!cat) return;
+    var h3M = chunk.match(/<h3>([\s\S]*?)<\/h3>/);
+    var name = h3M ? h3M[1].replace(/&amp;/g,'&').replace(/&middot;/g,'·').trim() : s.id;
+    var colorsM = s.attrs.match(/data-colors='(\[[\s\S]*?)'/);
+    var colors = [];
+    if(colorsM){
+      try {
+        var arr = JSON.parse(colorsM[1]);
+        colors = arr.map(function(c){ return c.label; }).filter(Boolean);
+      } catch(e){}
+    }
+    if(!byCat[cat]) byCat[cat] = [];
+    byCat[cat].push({ id: s.id, name: name, colors: colors.length ? colors : [null] });
+  });
+  return byCat;
+}
+
+/* ---------- Sidebar + secciones por categoría ---------- */
+
+function buildSidebar(){
+  var wrap = document.getElementById('categoryNavWrap');
+  wrap.innerHTML = '';
+  CATEGORY_DEFS.forEach(function(def){
+    var count = def.isBikes ? Object.keys(bikesInfo).length : (extraCategories[def.key] || []).length;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'nav-item';
+    btn.dataset.section = 'cat-' + def.key;
+    btn.textContent = def.label + ' (' + count + ')';
+    btn.onclick = function(){ showSection('cat-' + def.key); };
+    wrap.appendChild(btn);
+  });
+}
+
+function allSizesFor(key){
+  var base = bikesInfo[key].baseSizes.slice();
+  (extraSizes[key] || []).forEach(function(s){ if(base.indexOf(s) === -1) base.push(s); });
+  return base.length ? base : [null];
+}
+
+function renderAllCategorySections(){
+  var wrap = document.getElementById('categorySectionsWrap');
+  wrap.innerHTML = '';
+  CATEGORY_DEFS.forEach(function(def){
+    var section = document.createElement('section');
+    section.className = 'content-section';
+    section.dataset.section = 'cat-' + def.key;
+
+    var title = document.createElement('h1');
+    title.textContent = def.label;
+    section.appendChild(title);
+
+    var search = document.createElement('input');
+    search.type = 'search';
+    search.className = 'cat-search';
+    search.placeholder = 'Buscar producto en ' + def.label + '...';
+    search.oninput = (function(secEl){ return function(){ filterCategory(secEl, this.value); }; })(section);
+    section.appendChild(search);
+
+    var list = document.createElement('div');
+    list.className = 'accordion-list';
+
+    if(def.isBikes){
+      Object.keys(bikesInfo).forEach(function(key){
+        list.appendChild(buildBikeAccordion(key));
+      });
+    } else {
+      (extraCategories[def.key] || []).forEach(function(p){
+        list.appendChild(buildProductAccordion(p));
+      });
+      if(!(extraCategories[def.key] || []).length){
+        var empty = document.createElement('div');
+        empty.className = 'hint';
+        empty.textContent = 'No hay productos cargados en esta categoría todavía.';
+        list.appendChild(empty);
+      }
+    }
+    section.appendChild(list);
+    wrap.appendChild(section);
+  });
+}
+
+function buildBikeAccordion(key){
+  var info = bikesInfo[key];
+  var details = document.createElement('details');
+  details.className = 'accordion-item';
+  details.dataset.name = info.name.toLowerCase();
+
+  var summary = document.createElement('summary');
+  summary.innerHTML = '<span class="sname">' + info.name + '</span><span class="chev">▸</span>';
+  details.appendChild(summary);
+
+  var body = document.createElement('div');
+  body.className = 'accordion-body';
+
+  var head = document.createElement('div');
+  head.className = 'bike-group-head';
+  head.innerHTML =
+    '<div class="hint" style="margin:0;">Agregar un talle que esta bici todavía no tiene:</div>' +
+    '<div class="add-size-form">' +
+      '<input type="text" placeholder="Ej: XL" maxlength="6" id="newsize-' + key + '">' +
+      '<button type="button">+ Agregar talle</button>' +
+    '</div>';
+  head.querySelector('button').onclick = function(){ addSize(key); };
+  head.querySelector('input').addEventListener('keydown', function(e){ if(e.key === 'Enter') addSize(key); });
+  body.appendChild(head);
+
+  if((extraSizes[key] || []).length){
+    var chipsWrap = document.createElement('div');
+    chipsWrap.className = 'extra-sizes';
+    extraSizes[key].forEach(function(size){
+      var chip = document.createElement('span');
+      chip.className = 'extra-size-chip';
+      chip.innerHTML = 'Talle ' + size + ' (agregado) <button type="button">✕</button>';
+      chip.querySelector('button').onclick = function(){ removeSize(key, size); };
+      chipsWrap.appendChild(chip);
+    });
+    body.appendChild(chipsWrap);
+  }
+
+  var table = document.createElement('table');
+  table.innerHTML = '<thead><tr><th>Variante</th><th>Stock</th></tr></thead>';
+  var tbody = document.createElement('tbody');
+  var sizes = allSizesFor(key);
+  info.colors.forEach(function(color){
+    sizes.forEach(function(size){
+      var id = key + (color ? '::' + color : '') + (size ? '::' + size : '');
+      var qty = Object.prototype.hasOwnProperty.call(stockConfig, id) ? stockConfig[id] : '';
+      var label = [color, size ? 'Talle ' + size : null].filter(Boolean).join(' · ') || 'General';
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td class="name">' + label + '</td>' +
+        '<td><input type="number" min="0" step="1" data-id="' + id + '" value="' + qty + '" placeholder="Ilimitado"></td>';
+      tbody.appendChild(tr);
+    });
+  });
+  table.appendChild(tbody);
+  body.appendChild(table);
+
+  details.appendChild(body);
+  return details;
+}
+
+function buildProductAccordion(p){
+  var details = document.createElement('details');
+  details.className = 'accordion-item';
+  details.dataset.name = p.name.toLowerCase();
+
+  var summary = document.createElement('summary');
+  summary.innerHTML = '<span class="sname">' + p.name + '</span><span class="chev">▸</span>';
+  details.appendChild(summary);
+
+  var body = document.createElement('div');
+  body.className = 'accordion-body';
+
+  var table = document.createElement('table');
+  table.innerHTML = '<thead><tr><th>Variante</th><th>Stock</th></tr></thead>';
+  var tbody = document.createElement('tbody');
+  p.colors.forEach(function(color){
+    var id = p.id + (color ? '::' + color : '');
+    var qty = Object.prototype.hasOwnProperty.call(stockConfig, id) ? stockConfig[id] : '';
+    var label = color || 'General';
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td class="name">' + label + '</td>' +
+      '<td><input type="number" min="0" step="1" data-id="' + id + '" value="' + qty + '" placeholder="Ilimitado"></td>';
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  body.appendChild(table);
+
+  details.appendChild(body);
+  return details;
+}
+
+function filterCategory(sectionEl, query){
+  var q = query.trim().toLowerCase();
+  var items = sectionEl.querySelectorAll('.accordion-item');
+  var visible = 0;
+  items.forEach(function(it){
+    var match = !q || it.dataset.name.indexOf(q) !== -1;
+    it.style.display = match ? '' : 'none';
+    if(match) visible++;
+  });
+}
+
+/* ---------- Talles (solo Bicis Twitter) ---------- */
+
+async function addSize(key){
+  var input = document.getElementById('newsize-' + key);
+  var size = input.value.trim();
+  if(!size) return;
+  input.disabled = true;
+  try {
+    var res = await callAdminStock({ action: 'add-size', key: key, size: size });
+    var data = await res.json();
+    stockConfig = data.config || {};
+    extraSizes = data.extraSizes || {};
+    refreshBikeSection();
+  } catch(e){
+    alert('No se pudo agregar el talle, probá de nuevo.');
+    input.disabled = false;
+  }
+}
+
+async function removeSize(key, size){
+  if(!confirm('¿Quitar el talle ' + size + ' de ' + bikesInfo[key].name + '? Va a dejar de poder comprarse con ese talle.')) return;
+  try {
+    var res = await callAdminStock({ action: 'remove-size', key: key, size: size });
+    var data = await res.json();
+    stockConfig = data.config || {};
+    extraSizes = data.extraSizes || {};
+    refreshBikeSection();
+  } catch(e){
+    alert('No se pudo quitar el talle, probá de nuevo.');
+  }
+}
+
+function refreshBikeSection(){
+  var section = document.querySelector('.content-section[data-section="cat-bikes"]');
+  var search = section.querySelector('.cat-search');
+  var searchVal = search ? search.value : '';
+  var list = section.querySelector('.accordion-list');
+  list.innerHTML = '';
+  Object.keys(bikesInfo).forEach(function(key){
+    list.appendChild(buildBikeAccordion(key));
+  });
+  if(searchVal) filterCategory(section, searchVal);
+}
+
+/* ---------- Guardar stock (todas las categorías juntas) ---------- */
+
+async function saveStock(){
+  var inputs = document.querySelectorAll('#categorySectionsWrap input[type="number"]');
+  var updates = {};
+  inputs.forEach(function(inp){
+    updates[inp.dataset.id] = inp.value === '' ? null : inp.value;
+  });
+  var msg = document.getElementById('saveMsg');
+  msg.style.color = '#9a9c94';
+  msg.textContent = 'Guardando...';
+  try {
+    var res = await callAdminStock({ action: 'update', updates: updates });
+    if(!res.ok){ throw new Error('No se pudo guardar'); }
+    msg.style.color = '#4caf50';
+    msg.textContent = 'Guardado ✓';
+  } catch(e){
+    msg.style.color = '#c1272d';
+    msg.textContent = 'Error al guardar, probá de nuevo.';
+  }
+}
+
+/* ---------- Mantenimiento / vista previa ---------- */
 
 async function loadMaintenanceStatus(){
   try {
@@ -202,170 +640,77 @@ async function saveMaintenanceMessage(){
   }
 }
 
-async function loadEverything(){
+/* ---------- Planilla de cálculo (solo lectura) ---------- */
+
+function parseCSV(text){
+  var rows = [], row = [], field = '', inQ = false;
+  for(var i = 0; i < text.length; i++){
+    var ch = text[i];
+    if(inQ){
+      if(ch === '"'){ if(text[i+1] === '"'){ field += '"'; i++; } else { inQ = false; } }
+      else field += ch;
+    } else if(ch === '"') inQ = true;
+    else if(ch === ','){ row.push(field); field = ''; }
+    else if(ch === '\r'){}
+    else if(ch === '\n'){ row.push(field); rows.push(row); row = []; field = ''; }
+    else field += ch;
+  }
+  if(field.length || row.length){ row.push(field); rows.push(row); }
+  return rows;
+}
+
+async function loadSheet(){
   try {
-    var stockRes = await callAdminStock({});
-    if(stockRes.status === 401){
-      document.getElementById('gateMsg').textContent = 'Contraseña incorrecta.';
-      return;
-    }
-    if(!stockRes.ok){
-      document.getElementById('gateMsg').textContent = 'Error de conexión, probá de nuevo.';
-      return;
-    }
-    var stockData = await stockRes.json();
-    stockConfig = stockData.config || {};
-    extraSizes = stockData.extraSizes || {};
-
-    document.getElementById('gate').style.display = 'none';
-    document.getElementById('panel').style.display = 'block';
-    loadMaintenanceStatus();
-
-    var pageRes = await fetch('/');
-    var html = await pageRes.text();
-    var match = html.match(/var bikesData\s*=\s*(\{[\s\S]*?\});\s*\n/);
-    if(!match){
-      document.getElementById('loadingMsg').textContent = 'No se pudo leer el catálogo de productos.';
-      return;
-    }
-    var bikesData = new Function('return ' + match[1])();
-
-    var sizesByKey = {};
-    var sizesRe = /data-id="([^"]+)"[^>]*data-sizes="([^"]*)"/g;
-    var sm;
-    while((sm = sizesRe.exec(html))){
-      var sizes = sm[2].split(' ').map(function(s){ return s.trim(); }).filter(Boolean);
-      if(sizes.length) sizesByKey[sm[1]] = sizes;
-    }
-
-    bikesInfo = {};
-    Object.keys(bikesData).forEach(function(key){
-      var b = bikesData[key];
-      bikesInfo[key] = {
-        name: b.name,
-        colors: (b.colors && b.colors.length) ? b.colors.map(function(cv){ return cv.label; }) : [null],
-        baseSizes: sizesByKey[key] || []
-      };
-    });
-
-    renderGroups();
+    var res = await fetch(STOCK_CSV_URL, { cache: 'no-store' });
+    if(!res.ok) throw new Error('No se pudo leer la planilla');
+    var text = await res.text();
+    sheetRows = parseCSV(text).filter(function(r){ return r.some(function(c){ return c.trim() !== ''; }); });
+    renderSheetTable(sheetRows);
+    document.getElementById('sheetLoading').style.display = 'none';
+    document.getElementById('sheetTableWrap').style.display = 'block';
   } catch(e){
-    document.getElementById('loadingMsg').textContent = 'Error inesperado: ' + e.message;
+    document.getElementById('sheetLoading').textContent = 'No se pudo cargar la planilla: ' + e.message;
   }
 }
 
-function allSizesFor(key){
-  var base = bikesInfo[key].baseSizes.slice();
-  (extraSizes[key] || []).forEach(function(s){ if(base.indexOf(s) === -1) base.push(s); });
-  return base.length ? base : [null];
-}
-
-function renderGroups(){
-  var wrap = document.getElementById('groupsWrap');
+function renderSheetTable(rows){
+  var wrap = document.getElementById('sheetTableWrap');
+  if(!rows.length){ wrap.innerHTML = '<div class="hint">La planilla está vacía.</div>'; return; }
+  var table = document.createElement('table');
+  table.className = 'sheet-table';
+  var thead = document.createElement('thead');
+  var headRow = document.createElement('tr');
+  rows[0].forEach(function(h){
+    var th = document.createElement('th');
+    th.textContent = h;
+    headRow.appendChild(th);
+  });
+  thead.appendChild(headRow);
+  table.appendChild(thead);
+  var tbody = document.createElement('tbody');
+  tbody.id = 'sheetTbody';
+  for(var r = 1; r < rows.length; r++){
+    var tr = document.createElement('tr');
+    rows[r].forEach(function(cell){
+      var td = document.createElement('td');
+      td.textContent = cell;
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  }
+  table.appendChild(tbody);
   wrap.innerHTML = '';
-  Object.keys(bikesInfo).forEach(function(key){
-    var info = bikesInfo[key];
-    var sizes = allSizesFor(key);
-    var group = document.createElement('div');
-    group.className = 'bike-group';
+  wrap.appendChild(table);
+}
 
-    var head = document.createElement('div');
-    head.className = 'bike-group-head';
-    head.innerHTML =
-      '<h3>' + info.name + '</h3>' +
-      '<div class="add-size-form">' +
-        '<input type="text" placeholder="Ej: XL" maxlength="6" id="newsize-' + key + '">' +
-        '<button type="button">+ Agregar talle</button>' +
-      '</div>';
-    head.querySelector('button').onclick = function(){ addSize(key); };
-    head.querySelector('input').addEventListener('keydown', function(e){ if(e.key === 'Enter') addSize(key); });
-    group.appendChild(head);
-
-    if((extraSizes[key] || []).length){
-      var chipsWrap = document.createElement('div');
-      chipsWrap.className = 'extra-sizes';
-      extraSizes[key].forEach(function(size){
-        var chip = document.createElement('span');
-        chip.className = 'extra-size-chip';
-        chip.innerHTML = 'Talle ' + size + ' (agregado) <button type="button">✕</button>';
-        chip.querySelector('button').onclick = function(){ removeSize(key, size); };
-        chipsWrap.appendChild(chip);
-      });
-      group.appendChild(chipsWrap);
-    }
-
-    var table = document.createElement('table');
-    table.innerHTML = '<thead><tr><th>Variante</th><th>Stock</th></tr></thead>';
-    var tbody = document.createElement('tbody');
-    info.colors.forEach(function(color){
-      sizes.forEach(function(size){
-        var id = key + (color ? '::' + color : '') + (size ? '::' + size : '');
-        var qty = Object.prototype.hasOwnProperty.call(stockConfig, id) ? stockConfig[id] : '';
-        var label = [color, size ? 'Talle ' + size : null].filter(Boolean).join(' · ') || 'General';
-        var tr = document.createElement('tr');
-        tr.innerHTML =
-          '<td class="name">' + label + '</td>' +
-          '<td><input type="number" min="0" step="1" data-id="' + id + '" value="' + qty + '" placeholder="Ilimitado"></td>';
-        tbody.appendChild(tr);
-      });
-    });
-    table.appendChild(tbody);
-    group.appendChild(table);
-
-    wrap.appendChild(group);
+function filterSheet(query){
+  var q = query.trim().toLowerCase();
+  var tbody = document.getElementById('sheetTbody');
+  if(!tbody) return;
+  Array.prototype.forEach.call(tbody.children, function(tr){
+    var text = tr.textContent.toLowerCase();
+    tr.style.display = (!q || text.indexOf(q) !== -1) ? '' : 'none';
   });
-  document.getElementById('loadingMsg').style.display = 'none';
-  document.getElementById('saveBar').style.display = 'flex';
-}
-
-async function addSize(key){
-  var input = document.getElementById('newsize-' + key);
-  var size = input.value.trim();
-  if(!size) return;
-  input.disabled = true;
-  try {
-    var res = await callAdminStock({ action: 'add-size', key: key, size: size });
-    var data = await res.json();
-    stockConfig = data.config || {};
-    extraSizes = data.extraSizes || {};
-    renderGroups();
-  } catch(e){
-    alert('No se pudo agregar el talle, probá de nuevo.');
-    input.disabled = false;
-  }
-}
-
-async function removeSize(key, size){
-  if(!confirm('¿Quitar el talle ' + size + ' de ' + bikesInfo[key].name + '? Va a dejar de poder comprarse con ese talle.')) return;
-  try {
-    var res = await callAdminStock({ action: 'remove-size', key: key, size: size });
-    var data = await res.json();
-    stockConfig = data.config || {};
-    extraSizes = data.extraSizes || {};
-    renderGroups();
-  } catch(e){
-    alert('No se pudo quitar el talle, probá de nuevo.');
-  }
-}
-
-async function saveStock(){
-  var inputs = document.querySelectorAll('#groupsWrap input[type="number"]');
-  var updates = {};
-  inputs.forEach(function(inp){
-    updates[inp.dataset.id] = inp.value === '' ? null : inp.value;
-  });
-  var msg = document.getElementById('saveMsg');
-  msg.style.color = '#9a9c94';
-  msg.textContent = 'Guardando...';
-  try {
-    var res = await callAdminStock({ action: 'update', updates: updates });
-    if(!res.ok){ throw new Error('No se pudo guardar'); }
-    msg.style.color = '#4caf50';
-    msg.textContent = 'Guardado ✓';
-  } catch(e){
-    msg.style.color = '#c1272d';
-    msg.textContent = 'Error al guardar, probá de nuevo.';
-  }
 }
 
 document.getElementById('pwInput').addEventListener('keydown', function(e){
