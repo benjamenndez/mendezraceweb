@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://ss-cnt-001c.esmsv.com; connect-src 'self' https://tiny-pasca-2c9d60.netlify.app https://docs.google.com https://*.googleusercontent.com; base-uri 'self'; form-action 'self'; object-src 'none';">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
 <title>Mendezrace · Admin</title>
 <meta name="robots" content="noindex, nofollow">
 <style>
@@ -129,6 +131,8 @@
   .order-status.pending, .order-status.in_process{background:#3a3420; color:#e0b84a;}
   .order-status.approved{background:#1f3a24; color:#5fd37a;}
   .order-status.rejected, .order-status.cancelled, .order-status.refunded, .order-status.charged_back{background:#3a2020; color:#e08080;}
+  .order-status.warn{background:#3a3420; color:#e0b84a;}
+  .order-status.danger{background:#3a2020; color:#e08080;}
   .order-meta{color:#9a9c94; font-size:0.74rem; margin-top:3px;}
   .order-grid{display:grid; grid-template-columns:1fr 1fr; gap:3px 20px; margin-top:12px; font-size:0.82rem;}
   .order-grid div b{color:#9a9c94; font-weight:600; margin-right:4px;}
@@ -168,6 +172,7 @@
       <div class="sidebar-title">General</div>
       <button type="button" class="nav-item" data-section="maint" onclick="showSection('maint')">Estado de la tienda</button>
       <button type="button" class="nav-item" data-section="orders" onclick="showSection('orders')">Pedidos</button>
+      <button type="button" class="nav-item" data-section="security" onclick="showSection('security')">Seguridad</button>
       <div class="sidebar-title">Categorías</div>
       <div id="categoryNavWrap"></div>
       <hr class="nav-sep">
@@ -214,6 +219,15 @@
         <div id="ordersWrap" style="display:none;"></div>
       </section>
 
+      <section class="content-section" data-section="security" id="section-security">
+        <h1>Seguridad</h1>
+        <div class="sub">Registro de intentos de login fallidos al admin, bloqueos por fuerza bruta, y abuso detectado en el checkout. Se guarda automáticamente, no hace falta cargar nada acá.</div>
+        <input type="search" class="cat-search" id="securitySearch" placeholder="Buscar por IP o tipo de evento..." oninput="filterSecurityEvents(this.value)">
+        <div class="loading" id="securityLoading">Cargando eventos...</div>
+        <div class="hint" id="securityEmptyMsg" style="display:none;">Sin eventos de seguridad registrados — buena señal.</div>
+        <div id="securityWrap" style="display:none;"></div>
+      </section>
+
       <div id="categorySectionsWrap"></div>
 
       <section class="content-section" data-section="sheet" id="section-sheet">
@@ -243,6 +257,8 @@ var extraCategories = {};// catKey -> [{id, name, colors:[...]}]
 var sheetRows = [];      // [[header...], [row...], ...]
 var ordersData = [];     // pedidos pagados por Mercado Pago
 var ordersLoaded = false;
+var securityEvents = [];
+var securityLoaded = false;
 
 var CATEGORY_DEFS = [
   { key: 'bikes', label: 'Bicis Twitter', isBikes: true },
@@ -292,6 +308,15 @@ async function callAdminOrders(body){
   return res;
 }
 
+async function callAdminSecurity(body){
+  var res = await fetch(CHECKOUT_API_URL + '/admin-security', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(Object.assign({ password: adminPassword }, body))
+  });
+  return res;
+}
+
 function showSection(key){
   document.querySelectorAll('.content-section').forEach(function(el){
     el.classList.toggle('active', el.dataset.section === key);
@@ -300,9 +325,10 @@ function showSection(key){
     el.classList.toggle('active', el.dataset.section === key);
   });
   var saveBar = document.getElementById('saveBar');
-  saveBar.classList.toggle('show', key !== 'sheet' && key !== 'orders');
+  saveBar.classList.toggle('show', key !== 'sheet' && key !== 'orders' && key !== 'security');
   if(key === 'sheet' && !sheetRows.length) loadSheet();
   if(key === 'orders' && !ordersLoaded) loadOrders();
+  if(key === 'security' && !securityLoaded) loadSecurityEvents();
 }
 
 /* ---------- Login + carga inicial ---------- */
@@ -787,6 +813,71 @@ function filterOrders(query){
   var wrap = document.getElementById('ordersWrap');
   Array.prototype.forEach.call(wrap.children, function(card){
     var text = card.dataset.orderSearch || '';
+    card.style.display = (!q || text.indexOf(q) !== -1) ? '' : 'none';
+  });
+}
+
+/* ---------- Seguridad ---------- */
+
+var SECURITY_EVENT_LABELS = {
+  admin_login_failed: 'Intento de login fallido',
+  admin_login_blocked: 'IP bloqueada por fuerza bruta',
+  action_rate_limited: 'Límite de uso alcanzado'
+};
+
+var SECURITY_ACTION_LABELS = {
+  'create-preference': 'Checkout (crear pago)'
+};
+
+async function loadSecurityEvents(){
+  try {
+    var res = await callAdminSecurity({});
+    if(!res.ok){
+      var errData = await res.json().catch(function(){ return {}; });
+      document.getElementById('securityLoading').textContent = errData.error || 'No se pudieron cargar los eventos.';
+      return;
+    }
+    var data = await res.json();
+    securityEvents = data.events || [];
+    securityLoaded = true;
+    document.getElementById('securityLoading').style.display = 'none';
+    if(!securityEvents.length){
+      document.getElementById('securityEmptyMsg').style.display = 'block';
+    } else {
+      document.getElementById('securityWrap').style.display = 'block';
+      renderSecurityEvents(securityEvents);
+    }
+  } catch(e){
+    document.getElementById('securityLoading').textContent = 'Error inesperado: ' + e.message;
+  }
+}
+
+function renderSecurityEvents(events){
+  var wrap = document.getElementById('securityWrap');
+  wrap.innerHTML = events.map(function(e){
+    var label = SECURITY_EVENT_LABELS[e.type] || e.type;
+    var sev = e.type === 'admin_login_failed' ? 'warn' : 'danger';
+    var detail = '';
+    if(e.type === 'admin_login_failed') detail = 'Intento número ' + e.count + ' en la ventana de 15 minutos.';
+    else if(e.type === 'admin_login_blocked') detail = 'Se bloqueó por ' + e.minutes + ' minutos tras 5 intentos fallidos seguidos.';
+    else if(e.type === 'action_rate_limited') detail = 'Superó el límite de uso en: ' + (SECURITY_ACTION_LABELS[e.action] || e.action);
+    return '' +
+      '<div class="order-card" data-sec-search="' + escapeAttrAdmin((e.ip + ' ' + e.type).toLowerCase()) + '">' +
+        '<div class="order-card-head">' +
+          '<strong>' + escapeHtmlAdmin(label) + '</strong>' +
+          '<span class="order-status ' + sev + '">' + escapeHtmlAdmin(e.ip || 'IP desconocida') + '</span>' +
+        '</div>' +
+        '<div class="order-meta">' + fmtDateAdmin(e.ts) + '</div>' +
+        '<div class="order-notes">' + escapeHtmlAdmin(detail) + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+function filterSecurityEvents(query){
+  var q = query.trim().toLowerCase();
+  var wrap = document.getElementById('securityWrap');
+  Array.prototype.forEach.call(wrap.children, function(card){
+    var text = card.dataset.secSearch || '';
     card.style.display = (!q || text.indexOf(q) !== -1) ? '' : 'none';
   });
 }
