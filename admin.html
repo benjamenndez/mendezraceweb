@@ -122,6 +122,28 @@
   .sheet-table{min-width:900px; font-size:0.78rem;}
   .sheet-table th, .sheet-table td{white-space:nowrap; padding:7px 10px;}
 
+  .order-card{border:1px solid #2a2a26; border-radius:10px; padding:16px 18px; margin-bottom:12px; background:#121210;}
+  .order-card-head{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;}
+  .order-card-head strong{font-size:0.95rem;}
+  .order-status{font-size:0.66rem; text-transform:uppercase; font-weight:700; padding:3px 10px; border-radius:999px; letter-spacing:0.03em; white-space:nowrap;}
+  .order-status.pending, .order-status.in_process{background:#3a3420; color:#e0b84a;}
+  .order-status.approved{background:#1f3a24; color:#5fd37a;}
+  .order-status.rejected, .order-status.cancelled, .order-status.refunded, .order-status.charged_back{background:#3a2020; color:#e08080;}
+  .order-meta{color:#9a9c94; font-size:0.74rem; margin-top:3px;}
+  .order-grid{display:grid; grid-template-columns:1fr 1fr; gap:3px 20px; margin-top:12px; font-size:0.82rem;}
+  .order-grid div b{color:#9a9c94; font-weight:600; margin-right:4px;}
+  .order-items{margin-top:10px; padding-top:10px; border-top:1px dashed #2a2a26; font-size:0.82rem;}
+  .order-items div{padding:2px 0;}
+  .order-total{margin-top:8px; font-weight:700; font-size:0.92rem;}
+  .order-notes{margin-top:8px; font-size:0.8rem; color:#c7c9c1; background:#0d0e0c; border-radius:8px; padding:8px 10px;}
+  .order-wa-btn{
+    display:inline-flex; align-items:center; gap:6px; margin-top:12px; background:#1f3a24; color:#5fd37a;
+    border-radius:999px; padding:7px 16px; font-size:0.78rem; text-decoration:none; font-weight:600;
+  }
+  @media (max-width:600px){
+    .order-grid{grid-template-columns:1fr;}
+  }
+
   @media (max-width:860px){
     .app-layout{flex-direction:column;}
     .sidebar{position:static; width:100%; max-height:none; border-right:none; border-bottom:1px solid #2a2a26; padding:16px 16px 10px;}
@@ -145,6 +167,7 @@
       <div class="sidebar-brand">mendez<span>race</span> admin</div>
       <div class="sidebar-title">General</div>
       <button type="button" class="nav-item" data-section="maint" onclick="showSection('maint')">Estado de la tienda</button>
+      <button type="button" class="nav-item" data-section="orders" onclick="showSection('orders')">Pedidos</button>
       <div class="sidebar-title">Categorías</div>
       <div id="categoryNavWrap"></div>
       <hr class="nav-sep">
@@ -182,6 +205,15 @@
         </div>
       </section>
 
+      <section class="content-section" data-section="orders" id="section-orders">
+        <h1>Pedidos</h1>
+        <div class="sub">Pedidos pagados por Mercado Pago (transferencia o tarjeta). Los pedidos por "link de pago" te llegan directo por WhatsApp y no quedan guardados acá.</div>
+        <input type="search" class="cat-search" id="ordersSearch" placeholder="Buscar por nombre, teléfono, email, DNI..." oninput="filterOrders(this.value)">
+        <div class="loading" id="ordersLoading">Cargando pedidos...</div>
+        <div class="hint" id="ordersEmptyMsg" style="display:none;">Todavía no hay pedidos pagados por Mercado Pago.</div>
+        <div id="ordersWrap" style="display:none;"></div>
+      </section>
+
       <div id="categorySectionsWrap"></div>
 
       <section class="content-section" data-section="sheet" id="section-sheet">
@@ -209,6 +241,8 @@ var extraSizes = {};     // key -> [...] (talles agregados a mano desde el admin
 var stockConfig = {};
 var extraCategories = {};// catKey -> [{id, name, colors:[...]}]
 var sheetRows = [];      // [[header...], [row...], ...]
+var ordersData = [];     // pedidos pagados por Mercado Pago
+var ordersLoaded = false;
 
 var CATEGORY_DEFS = [
   { key: 'bikes', label: 'Bicis Twitter', isBikes: true },
@@ -249,6 +283,15 @@ async function callAdminSite(body){
   return res;
 }
 
+async function callAdminOrders(body){
+  var res = await fetch(CHECKOUT_API_URL + '/admin-orders', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(Object.assign({ password: adminPassword }, body))
+  });
+  return res;
+}
+
 function showSection(key){
   document.querySelectorAll('.content-section').forEach(function(el){
     el.classList.toggle('active', el.dataset.section === key);
@@ -257,8 +300,9 @@ function showSection(key){
     el.classList.toggle('active', el.dataset.section === key);
   });
   var saveBar = document.getElementById('saveBar');
-  saveBar.classList.toggle('show', key !== 'sheet');
+  saveBar.classList.toggle('show', key !== 'sheet' && key !== 'orders');
   if(key === 'sheet' && !sheetRows.length) loadSheet();
+  if(key === 'orders' && !ordersLoaded) loadOrders();
 }
 
 /* ---------- Login + carga inicial ---------- */
@@ -643,6 +687,108 @@ async function saveMaintenanceMessage(){
     msg.style.color = '#c1272d';
     msg.textContent = 'No se pudo guardar, probá de nuevo.';
   }
+}
+
+/* ---------- Pedidos (Mercado Pago) ---------- */
+
+var ORDER_STATUS_LABELS = {
+  pending: 'Pendiente',
+  in_process: 'En proceso',
+  approved: 'Aprobado',
+  rejected: 'Rechazado',
+  cancelled: 'Cancelado',
+  refunded: 'Reembolsado',
+  charged_back: 'Contracargo'
+};
+
+function fmtMoneyAdmin(n){
+  return '$' + Math.round(Number(n) || 0).toLocaleString('es-AR');
+}
+
+function fmtDateAdmin(ts){
+  if(!ts) return '';
+  return new Date(ts).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' });
+}
+
+function escapeHtmlAdmin(s){
+  var div = document.createElement('div');
+  div.textContent = s == null ? '' : String(s);
+  return div.innerHTML;
+}
+
+function escapeAttrAdmin(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+async function loadOrders(){
+  try {
+    var res = await callAdminOrders({});
+    if(!res.ok){
+      var errData = await res.json().catch(function(){ return {}; });
+      document.getElementById('ordersLoading').textContent = errData.error || 'No se pudieron cargar los pedidos.';
+      return;
+    }
+    var data = await res.json();
+    ordersData = data.orders || [];
+    ordersLoaded = true;
+    document.getElementById('ordersLoading').style.display = 'none';
+    if(!ordersData.length){
+      document.getElementById('ordersEmptyMsg').style.display = 'block';
+    } else {
+      document.getElementById('ordersWrap').style.display = 'block';
+      renderOrders(ordersData);
+    }
+  } catch(e){
+    document.getElementById('ordersLoading').textContent = 'Error inesperado: ' + e.message;
+  }
+}
+
+function renderOrders(orders){
+  var wrap = document.getElementById('ordersWrap');
+  wrap.innerHTML = orders.map(function(o){
+    var buyer = o.buyer || {};
+    var statusKey = o.status || 'pending';
+    var statusLabel = ORDER_STATUS_LABELS[statusKey] || statusKey;
+    var itemsHtml = (o.items || []).map(function(it){
+      var extra = [it.color, it.talle ? ('Talle ' + it.talle) : null].filter(Boolean).join(', ');
+      return '<div>' + (it.qty || 1) + 'x ' + escapeHtmlAdmin(it.name) + (extra ? ' (' + escapeHtmlAdmin(extra) + ')' : '') + ' — ' + fmtMoneyAdmin((it.price || 0) * (it.qty || 1)) + '</div>';
+    }).join('');
+    var waDigits = (buyer.phone || '').replace(/\D/g, '');
+    var waBtn = waDigits ? ('<a class="order-wa-btn" target="_blank" rel="noopener" href="https://wa.me/' + waDigits + '">Escribir por WhatsApp</a>') : '';
+    return '' +
+      '<div class="order-card" data-order-search="' + escapeAttrAdmin([buyer.name, buyer.email, buyer.phone, buyer.dni, o.orderId].filter(Boolean).join(' ').toLowerCase()) + '">' +
+        '<div class="order-card-head">' +
+          '<strong>' + escapeHtmlAdmin(buyer.name || 'Sin nombre') + '</strong>' +
+          '<span class="order-status ' + statusKey + '">' + escapeHtmlAdmin(statusLabel) + '</span>' +
+        '</div>' +
+        '<div class="order-meta">' + escapeHtmlAdmin(o.orderId) + ' · ' + fmtDateAdmin(o.createdAt) + '</div>' +
+        '<div class="order-grid">' +
+          '<div><b>DNI/CUIT/CUIL:</b>' + escapeHtmlAdmin(buyer.dni) + '</div>' +
+          '<div><b>Teléfono:</b>' + escapeHtmlAdmin(buyer.phone) + '</div>' +
+          '<div><b>Email:</b>' + escapeHtmlAdmin(buyer.email) + '</div>' +
+          '<div><b>Entrega:</b>' + escapeHtmlAdmin(buyer.shippingMethod) + '</div>' +
+          '<div><b>Dirección:</b>' + escapeHtmlAdmin(buyer.address) + (buyer.apartment ? (' - ' + escapeHtmlAdmin(buyer.apartment)) : '') + '</div>' +
+          '<div><b>Referencia:</b>' + escapeHtmlAdmin(buyer.reference) + '</div>' +
+        '</div>' +
+        '<div class="order-items">' + itemsHtml + '</div>' +
+        '<div class="order-total">Total: ' + fmtMoneyAdmin(o.total) + ' · ' + escapeHtmlAdmin(o.paymentPlan) + '</div>' +
+        (o.notes ? ('<div class="order-notes">' + escapeHtmlAdmin(o.notes) + '</div>') : '') +
+        waBtn +
+      '</div>';
+  }).join('');
+}
+
+function filterOrders(query){
+  var q = query.trim().toLowerCase();
+  var wrap = document.getElementById('ordersWrap');
+  Array.prototype.forEach.call(wrap.children, function(card){
+    var text = card.dataset.orderSearch || '';
+    card.style.display = (!q || text.indexOf(q) !== -1) ? '' : 'none';
+  });
 }
 
 /* ---------- Planilla de cálculo (solo lectura) ---------- */
