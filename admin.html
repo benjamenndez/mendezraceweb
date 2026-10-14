@@ -128,8 +128,15 @@
   .order-card-head{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;}
   .order-card-head strong{font-size:0.95rem;}
   .order-status{font-size:0.66rem; text-transform:uppercase; font-weight:700; padding:3px 10px; border-radius:999px; letter-spacing:0.03em; white-space:nowrap;}
-  .order-status.pending, .order-status.in_process{background:#3a3420; color:#e0b84a;}
-  .order-status.approved{background:#1f3a24; color:#5fd37a;}
+  .order-status.pending, .order-status.in_process, .order-status.pendiente_transferencia{background:#3a3420; color:#e0b84a;}
+  .order-status.approved, .order-status.pagado{background:#1f3a24; color:#5fd37a;}
+  .order-status.cancelada{background:#3a2020; color:#e08080;}
+  .order-action-row{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;}
+  .order-action-row button{border:none; border-radius:999px; padding:8px 16px; font-size:0.78rem; font-weight:600; cursor:pointer;}
+  .order-action-row .confirm{background:#1f3a24; color:#5fd37a;}
+  .order-action-row .cancel{background:transparent; color:#e08080; border:1px solid #5a2a2a;}
+  .order-action-row button:disabled{opacity:0.5; cursor:default;}
+  .order-expired{color:#e08080; font-size:0.78rem; margin-top:8px;}
   .order-status.rejected, .order-status.cancelled, .order-status.refunded, .order-status.charged_back{background:#3a2020; color:#e08080;}
   .order-status.warn{background:#3a3420; color:#e0b84a;}
   .order-status.danger{background:#3a2020; color:#e08080;}
@@ -161,6 +168,7 @@
   <h1>Admin</h1>
   <div class="sub">mendezrace.bike</div>
   <input type="password" id="pwInput" placeholder="Contraseña">
+  <input type="text" id="totpInput" placeholder="Código de 6 dígitos (Authenticator)" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="margin-top:0;">
   <button type="button" onclick="login()">Entrar</button>
   <div class="msg" id="gateMsg"></div>
 </div>
@@ -173,6 +181,7 @@
       <button type="button" class="nav-item" data-section="maint" onclick="showSection('maint')">Estado de la tienda</button>
       <button type="button" class="nav-item" data-section="orders" onclick="showSection('orders')">Pedidos</button>
       <button type="button" class="nav-item" data-section="security" onclick="showSection('security')">Seguridad</button>
+      <button type="button" class="nav-item" data-section="lowstock" onclick="showSection('lowstock')">Stock bajo <span id="lowStockCount"></span></button>
       <div class="sidebar-title">Categorías</div>
       <div id="categoryNavWrap"></div>
       <hr class="nav-sep">
@@ -212,10 +221,10 @@
 
       <section class="content-section" data-section="orders" id="section-orders">
         <h1>Pedidos</h1>
-        <div class="sub">Pedidos pagados por Mercado Pago (transferencia o tarjeta). Los pedidos por "link de pago" te llegan directo por WhatsApp y no quedan guardados acá.</div>
+        <div class="sub">Pedidos de la web. Los pagados con tarjeta llegan solos por Mercado Pago. Las transferencias quedan pendientes hasta que las confirmes con "Marcar como pagado". Los pedidos por "link de pago" te llegan directo por WhatsApp y no quedan guardados acá.</div>
         <input type="search" class="cat-search" id="ordersSearch" placeholder="Buscar por nombre, teléfono, email, DNI..." oninput="filterOrders(this.value)">
         <div class="loading" id="ordersLoading">Cargando pedidos...</div>
-        <div class="hint" id="ordersEmptyMsg" style="display:none;">Todavía no hay pedidos pagados por Mercado Pago.</div>
+        <div class="hint" id="ordersEmptyMsg" style="display:none;">Todavía no hay pedidos.</div>
         <div id="ordersWrap" style="display:none;"></div>
       </section>
 
@@ -226,6 +235,12 @@
         <div class="loading" id="securityLoading">Cargando eventos...</div>
         <div class="hint" id="securityEmptyMsg" style="display:none;">Sin eventos de seguridad registrados — buena señal.</div>
         <div id="securityWrap" style="display:none;"></div>
+      </section>
+
+      <section class="content-section" data-section="lowstock" id="section-lowstock">
+        <h1>Stock bajo</h1>
+        <div class="sub">Variantes con stock cargado de 2 unidades o menos (incluye las que están en 0). Las variantes sin control de stock no aparecen acá.</div>
+        <div id="lowStockWrap"></div>
       </section>
 
       <div id="categorySectionsWrap"></div>
@@ -249,7 +264,7 @@
 <script>
 var CHECKOUT_API_URL = 'https://tiny-pasca-2c9d60.netlify.app/.netlify/functions';
 var STOCK_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQfQLeacPgNOgY3zzhc-eftK4X5AsglPqZkMzO0ZlWYnxqf7j5GarcGs7Ctfi5g7nzdI-CiIJXbfrS_/pub?output=csv';
-var adminPassword = '';
+var adminToken = '';
 var bikesInfo = {};      // key -> { name, colors:[...], baseSizes:[...] }
 var extraSizes = {};     // key -> [...] (talles agregados a mano desde el admin)
 var stockConfig = {};
@@ -273,19 +288,39 @@ var CATEGORY_DEFS = [
   { key: 'ruedas-y-partes', label: 'Ruedas y Partes' }
 ];
 
-function login(){
+async function login(){
   var pw = document.getElementById('pwInput').value;
-  if(!pw){ return; }
-  adminPassword = pw;
+  var code = document.getElementById('totpInput').value.trim();
+  if(!pw || !code){
+    document.getElementById('gateMsg').textContent = 'Ingresá la contraseña y el código de 6 dígitos.';
+    return;
+  }
   document.getElementById('gateMsg').textContent = 'Verificando...';
-  loadEverything();
+  try {
+    var res = await fetch(CHECKOUT_API_URL + '/admin-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw, totp: code })
+    });
+    var data = await res.json().catch(function(){ return {}; });
+    if(!res.ok){
+      document.getElementById('gateMsg').textContent = data.error || 'No se pudo entrar.';
+      return;
+    }
+    adminToken = data.token;
+    document.getElementById('pwInput').value = '';
+    document.getElementById('totpInput').value = '';
+    loadEverything();
+  } catch(e){
+    document.getElementById('gateMsg').textContent = 'Error de conexión, probá de nuevo.';
+  }
 }
 
 async function callAdminStock(body){
   var res = await fetch(CHECKOUT_API_URL + '/admin-stock', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(Object.assign({ password: adminPassword }, body))
+    body: JSON.stringify(Object.assign({ token: adminToken }, body))
   });
   return res;
 }
@@ -294,7 +329,7 @@ async function callAdminSite(body){
   var res = await fetch(CHECKOUT_API_URL + '/admin-site', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(Object.assign({ password: adminPassword }, body))
+    body: JSON.stringify(Object.assign({ token: adminToken }, body))
   });
   return res;
 }
@@ -303,7 +338,16 @@ async function callAdminOrders(body){
   var res = await fetch(CHECKOUT_API_URL + '/admin-orders', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(Object.assign({ password: adminPassword }, body))
+    body: JSON.stringify(Object.assign({ token: adminToken }, body))
+  });
+  return res;
+}
+
+async function callAdminOrderAction(orderId, action){
+  var res = await fetch(CHECKOUT_API_URL + '/admin-order-action', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: adminToken, orderId: orderId, action: action })
   });
   return res;
 }
@@ -312,7 +356,7 @@ async function callAdminSecurity(body){
   var res = await fetch(CHECKOUT_API_URL + '/admin-security', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(Object.assign({ password: adminPassword }, body))
+    body: JSON.stringify(Object.assign({ token: adminToken }, body))
   });
   return res;
 }
@@ -329,6 +373,55 @@ function showSection(key){
   if(key === 'sheet' && !sheetRows.length) loadSheet();
   if(key === 'orders' && !ordersLoaded) loadOrders();
   if(key === 'security' && !securityLoaded) loadSecurityEvents();
+  if(key === 'lowstock') renderLowStock();
+}
+
+var LOW_STOCK_THRESHOLD = 2;
+
+function findProductName(baseId){
+  if(bikesInfo[baseId]) return bikesInfo[baseId].name;
+  var found = null;
+  Object.keys(extraCategories).forEach(function(cat){
+    (extraCategories[cat] || []).forEach(function(p){ if(p.id === baseId) found = p.name; });
+  });
+  return found || baseId;
+}
+
+function renderLowStock(){
+  var rows = Object.keys(stockConfig).map(function(id){
+    return { id: id, qty: Number(stockConfig[id]) };
+  }).filter(function(r){
+    return isFinite(r.qty) && r.qty <= LOW_STOCK_THRESHOLD;
+  }).sort(function(a, b){ return a.qty - b.qty; });
+
+  document.getElementById('lowStockCount').textContent = rows.length ? '(' + rows.length + ')' : '';
+  var wrap = document.getElementById('lowStockWrap');
+  wrap.innerHTML = '';
+  if(!rows.length){
+    wrap.innerHTML = '<div class="hint">No hay variantes con stock bajo.</div>';
+    return;
+  }
+  var table = document.createElement('table');
+  table.innerHTML = '<thead><tr><th>Producto</th><th>Variante</th><th>Stock</th></tr></thead>';
+  var tbody = document.createElement('tbody');
+  rows.forEach(function(r){
+    var base = r.id.split('::')[0];
+    var variant = r.id.slice(base.length).split('::').filter(Boolean).join(' · ') || 'General';
+    var tr = document.createElement('tr');
+    var tdName = document.createElement('td');
+    tdName.className = 'name';
+    tdName.textContent = findProductName(base);
+    var tdVariant = document.createElement('td');
+    tdVariant.textContent = variant;
+    var tdQty = document.createElement('td');
+    tdQty.textContent = r.qty === 0 ? 'Sin stock' : String(r.qty);
+    tr.appendChild(tdName);
+    tr.appendChild(tdVariant);
+    tr.appendChild(tdQty);
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  wrap.appendChild(table);
 }
 
 /* ---------- Login + carga inicial ---------- */
@@ -389,6 +482,7 @@ async function loadEverything(){
 
     buildSidebar();
     renderAllCategorySections();
+    renderLowStock();
     document.getElementById('loadingMsg').style.display = 'none';
     showSection('maint');
   } catch(e){
@@ -718,6 +812,9 @@ async function saveMaintenanceMessage(){
 /* ---------- Pedidos (Mercado Pago) ---------- */
 
 var ORDER_STATUS_LABELS = {
+  pendiente_transferencia: 'Transferencia pendiente',
+  pagado: 'Pagado',
+  cancelada: 'Cancelada',
   pending: 'Pendiente',
   in_process: 'En proceso',
   approved: 'Aprobado',
@@ -767,6 +864,7 @@ async function loadOrders(){
     } else {
       document.getElementById('ordersWrap').style.display = 'block';
       renderOrders(ordersData);
+      addOrderActions(ordersData);
     }
   } catch(e){
     document.getElementById('ordersLoading').textContent = 'Error inesperado: ' + e.message;
@@ -815,6 +913,61 @@ function filterOrders(query){
     var text = card.dataset.orderSearch || '';
     card.style.display = (!q || text.indexOf(q) !== -1) ? '' : 'none';
   });
+}
+
+var TRANSFER_HOLD_MS = 24 * 60 * 60 * 1000;
+
+function addOrderActions(orders){
+  var wrap = document.getElementById('ordersWrap');
+  orders.forEach(function(o, i){
+    if(o.status !== 'pendiente_transferencia') return;
+    var card = wrap.children[i];
+    if(!card) return;
+    var expired = o.createdAt && (Date.now() - o.createdAt) > TRANSFER_HOLD_MS;
+    if(expired){
+      var note = document.createElement('div');
+      note.className = 'order-expired';
+      note.textContent = 'Pasaron más de 24 h. Revisá el stock antes de confirmar: si la reserva venció, la confirmación se rechaza.';
+      card.appendChild(note);
+    }
+    var row = document.createElement('div');
+    row.className = 'order-action-row';
+    var ok = document.createElement('button');
+    ok.type = 'button';
+    ok.className = 'confirm';
+    ok.textContent = 'Marcar como pagado';
+    var cancel = document.createElement('button');
+    cancel.type = 'button';
+    cancel.className = 'cancel';
+    cancel.textContent = 'Cancelar';
+    ok.onclick = function(){ runOrderAction(o.orderId, 'mark_paid', row); };
+    cancel.onclick = function(){ runOrderAction(o.orderId, 'cancel', row); };
+    row.appendChild(ok);
+    row.appendChild(cancel);
+    card.appendChild(row);
+  });
+}
+
+async function runOrderAction(orderId, action, row){
+  var msg = action === 'mark_paid'
+    ? '¿Confirmás que recibiste la transferencia de este pedido?'
+    : '¿Cancelar este pedido? El stock vuelve a estar disponible.';
+  if(!confirm(msg)) return;
+  Array.prototype.forEach.call(row.querySelectorAll('button'), function(b){ b.disabled = true; });
+  try {
+    var res = await callAdminOrderAction(orderId, action);
+    var data = await res.json().catch(function(){ return {}; });
+    if(!res.ok){
+      alert(data.error || 'No se pudo completar la acción.');
+      Array.prototype.forEach.call(row.querySelectorAll('button'), function(b){ b.disabled = false; });
+      return;
+    }
+    ordersLoaded = false;
+    loadOrders();
+  } catch(e){
+    alert('Error de conexión, probá de nuevo.');
+    Array.prototype.forEach.call(row.querySelectorAll('button'), function(b){ b.disabled = false; });
+  }
 }
 
 /* ---------- Seguridad ---------- */
@@ -956,6 +1109,9 @@ function filterSheet(query){
 }
 
 document.getElementById('pwInput').addEventListener('keydown', function(e){
+  if(e.key === 'Enter') login();
+});
+document.getElementById('totpInput').addEventListener('keydown', function(e){
   if(e.key === 'Enter') login();
 });
 </script>

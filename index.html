@@ -222,6 +222,12 @@
   }
   .cart-buyer-form input:focus, .cart-buyer-form textarea:focus{outline:none; border-color:var(--ink);}
   .cart-checkout-btn{width:100%; text-align:center; border:none; cursor:pointer; margin-top:18px;}
+  .transfer-result{background:#1E1F1A; border:1px solid var(--accent); border-radius:14px; padding:16px 18px; margin-bottom:18px;}
+  .transfer-result h3{font-family:'Archivo Black',sans-serif; font-size:1rem; margin-bottom:8px;}
+  .transfer-result p{font-size:0.86rem; color:var(--ink); margin-bottom:6px;}
+  .transfer-result .transfer-alias{font-family:'Archivo Black',sans-serif; font-size:1.25rem; letter-spacing:0.03em; color:var(--accent); margin:8px 0 12px;}
+  .transfer-result .transfer-note{font-size:0.78rem; color:var(--steel);}
+  .transfer-result .btn{display:block; text-align:center; margin-top:12px;}
   .cart-checkout-btn:disabled{opacity:0.6; cursor:not-allowed;}
   .cart-trust{
     display:flex; flex-direction:column; gap:6px;
@@ -970,55 +976,6 @@
   }
   .bike-modal-overlay.open{display:flex;}
 
-  .search-overlay{
-    position:fixed; inset:0; z-index:210;
-    background:rgba(24,25,23,0.88);
-    display:none;
-    align-items:flex-start; justify-content:center;
-    padding:90px 32px 32px;
-    backdrop-filter:blur(4px);
-  }
-  .search-overlay.open{display:flex;}
-  .search-panel{
-    background:var(--paper);
-    max-width:760px; width:100%;
-    border-radius:6px;
-    padding:26px 26px 20px;
-    max-height:78vh; overflow:auto;
-  }
-  .search-panel .search-row{
-    display:flex; align-items:center; gap:12px;
-    border-bottom:2px solid var(--ink);
-    padding-bottom:12px; margin-bottom:18px;
-  }
-  .search-panel input{
-    flex:1; border:none; outline:none;
-    font-family:'Poppins',sans-serif; font-size:1.05rem;
-    background:transparent; color:var(--ink);
-  }
-  .search-panel .search-close{
-    background:none; border:none; cursor:pointer;
-    color:var(--steel); font-size:1.1rem; line-height:1;
-  }
-  .search-panel .search-close:hover{color:var(--accent);}
-  .search-results{
-    display:grid; grid-template-columns:repeat(3,1fr); gap:14px;
-  }
-  .search-results .cat-card{padding:16px 14px; border-radius:16px; min-width:0;}
-  .search-results .cat-card-extra{display:block;}
-  .search-results .cat-card .cat-mono{margin-bottom:10px; font-size:0.72rem;}
-  .search-results .cat-card .bike-icon{height:100px; margin-bottom:10px;}
-  .search-results .cat-card h3{font-size:0.9rem; margin-bottom:4px;}
-  .search-results .cat-card .desc{display:none;}
-  .search-results .cat-card .urgency{font-size:0.64rem;}
-  .search-results .cat-card .urgency.low-stock{margin-bottom:8px;}
-  .search-results .cat-card .price{font-size:1rem;}
-  @media (max-width:640px){
-    .search-results{grid-template-columns:1fr 1fr; gap:10px;}
-  }
-  .search-empty{
-    color:var(--steel); font-size:0.9rem; padding:18px 4px; text-align:center;
-  }
   .bike-modal{
     background:var(--paper);
     max-width:920px; width:100%;
@@ -3523,6 +3480,7 @@
       <div class="cart-items" id="cartItemsList"></div>
       <div class="cart-empty" id="cartEmptyMsg" style="display:none;">Tu carrito está vacío.</div>
       <div class="cart-footer">
+        <div class="transfer-result" id="transferResult" style="display:none;"></div>
         <div class="cart-section-title">Tu pedido</div>
         <div class="cart-subtotal"><span>Subtotal</span><strong id="cartSubtotal">$0</strong></div>
 
@@ -3531,7 +3489,7 @@
           <label class="pay-option" data-plan="transfer">
             <input type="radio" name="payplan" value="transfer" checked onchange="selectPaymentPlan('transfer')">
             <span class="pay-option-row">
-              <span class="pay-option-label">Transferencia o efectivo</span>
+              <span class="pay-option-label">Transferencia bancaria</span>
               <span class="pay-option-price" data-price-for="transfer">$0</span>
             </span>
             <span class="pay-option-tag">Precio de página, sin recargo</span>
@@ -4166,7 +4124,7 @@ var SHIP_METHOD_LABELS = {
 
 /* Recargo según forma de pago. Transferencia/efectivo/link de pago quedan al precio de página. */
 var PAYMENT_PLANS = {
-  transfer: { label: 'Transferencia o efectivo', mult: 1 },
+  transfer: { label: 'Transferencia bancaria', mult: 1 },
   link: { label: 'Pedir link de pago', mult: 1 },
   card3: { label: 'Tarjeta en 3 cuotas', mult: 1.15, installments: 3 },
   card6: { label: 'Tarjeta en 6 cuotas', mult: 1.30, installments: 6 }
@@ -4570,6 +4528,10 @@ async function startCheckout(){
     requestPaymentLinkByWhatsapp(cart, buyer, notes);
     return;
   }
+  if(selectedPaymentMethod === 'transfer'){
+    await startTransferOrder(cart, buyer, notes);
+    return;
+  }
 
   var btn = document.getElementById('cartCheckoutBtn');
   btn.disabled = true;
@@ -4608,6 +4570,80 @@ async function startCheckout(){
     setCheckoutMsg('Hubo un problema al iniciar el pago. Probá de nuevo en unos minutos.', 'error');
     btn.disabled = false;
   }
+}
+
+async function startTransferOrder(cart, buyer, notes){
+  var btn = document.getElementById('cartCheckoutBtn');
+  btn.disabled = true;
+  setCheckoutMsg('Registrando tu pedido...', '');
+  try {
+    var res = await fetch(CHECKOUT_API_URL + '/create-transfer-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        items: cart.map(function(it){
+          return { id: it.id, name: it.name, color: it.color, talle: it.talle, price: it.price, qty: it.qty };
+        }),
+        buyer: buyer,
+        notes: notes
+      })
+    });
+    var data = await res.json();
+    if(res.status === 409 && data.outOfStock){
+      handleOutOfStock(data.outOfStock);
+      btn.disabled = false;
+      return;
+    }
+    if(res.status === 429){
+      setCheckoutMsg(data.error || 'Demasiados intentos. Probá de nuevo en unos minutos.', 'error');
+      btn.disabled = false;
+      return;
+    }
+    if(!res.ok || !data.order_id){
+      throw new Error(data.error || 'No se pudo registrar el pedido');
+    }
+    saveCart([]);
+    renderCart();
+    setCheckoutMsg('', '');
+    showTransferResult(data);
+  } catch(err){
+    setCheckoutMsg('Hubo un problema al registrar tu pedido. Probá de nuevo en unos minutos.', 'error');
+    btn.disabled = false;
+  }
+}
+
+function showTransferResult(data){
+  var box = document.getElementById('transferResult');
+  box.innerHTML = '';
+  var total = fmtMoney(data.total);
+  var title = document.createElement('h3');
+  title.textContent = '¡Pedido registrado!';
+  var intro = document.createElement('p');
+  intro.textContent = 'Transferí ' + total + ' a este alias:';
+  var alias = document.createElement('div');
+  alias.className = 'transfer-alias';
+  alias.textContent = data.alias;
+  var order = document.createElement('p');
+  order.className = 'transfer-note';
+  order.textContent = 'Número de pedido: ' + data.order_id;
+  var hold = document.createElement('p');
+  hold.className = 'transfer-note';
+  hold.textContent = 'Tenés ' + data.hold_hours + ' horas para transferir. Pasado ese plazo, el pedido se cancela y el stock vuelve a estar disponible.';
+  var msg = 'Hola! Te envío el comprobante de la transferencia del pedido ' + data.order_id + ' por ' + total + '.';
+  var wa = document.createElement('a');
+  wa.className = 'btn btn-accent';
+  wa.target = '_blank';
+  wa.rel = 'noopener';
+  wa.href = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg);
+  wa.textContent = 'Enviar comprobante por WhatsApp';
+  box.appendChild(title);
+  box.appendChild(intro);
+  box.appendChild(alias);
+  box.appendChild(order);
+  box.appendChild(hold);
+  box.appendChild(wa);
+  box.style.display = 'block';
+  box.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 function requestPaymentLinkByWhatsapp(cart, buyer, notes){
@@ -5615,23 +5651,32 @@ function resetCategoryFilter(){
 }
 
 /* ---------- Productos destacados (home) ---------- */
-/* Curados a mano por ahora; a medida que se vendan productos, actualizar esta lista con los que más roten. */
-var FEATURED_PRODUCTS = [
-  { type: 'bike', key: 'predator' },
-  { type: 'extra', key: 'd4-composite-helmet-omega-white-blue' },
-  { type: 'extra', key: 'casco-adulto-speedframe-pro-camo-black' },
-  { type: 'bike', key: 'gravelv3' }
+/* Los destacados salen de las ventas pagadas (get-featured). Esta lista es el respaldo si todavía no hay ventas suficientes o el servicio no responde. */
+var FEATURED_FALLBACK_IDS = [
+  'predator',
+  'd4-composite-helmet-omega-white-blue',
+  'casco-adulto-speedframe-pro-camo-black',
+  'gravelv3'
 ];
+var FEATURED_COUNT = 4;
 
-function renderFeaturedProducts(){
+async function renderFeaturedProducts(){
   var grid = document.getElementById('featuredGrid');
   if(!grid) return;
+  var ids = [];
+  try {
+    var res = await fetch(CHECKOUT_API_URL + '/get-featured');
+    if(res.ok){
+      var data = await res.json();
+      ids = (data.items || []).map(function(x){ return x.id; });
+    }
+  } catch(e){}
+  FEATURED_FALLBACK_IDS.forEach(function(id){
+    if(ids.length < FEATURED_COUNT && ids.indexOf(id) === -1) ids.push(id);
+  });
   grid.innerHTML = '';
-  FEATURED_PRODUCTS.forEach(function(item){
-    var selector = item.type === 'bike'
-      ? '.cat-grid > .cat-card[data-id="' + item.key + '"]:not(.cat-card-extra)'
-      : '.cat-grid > .cat-card-extra[data-id="' + item.key + '"]';
-    var original = document.querySelector(selector);
+  ids.slice(0, FEATURED_COUNT).forEach(function(id){
+    var original = document.querySelector('.cat-grid > .cat-card[data-id="' + id + '"]');
     if(!original) return;
     var clone = original.cloneNode(true);
     clone.style.display = 'block';
