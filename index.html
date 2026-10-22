@@ -479,36 +479,38 @@
   .brand .dot{color:var(--accent);}
 
   /* Category shop strip */
-  .trust-bar{padding:32px 0 0; border-bottom:none;}
-  .trust-bar-grid{display:flex; gap:20px; flex-wrap:wrap;}
+  .trust-bar{padding:26px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin-top:40px;}
+  .trust-bar-grid{display:flex; flex-wrap:wrap;}
   .trust-item{
     flex:1; min-width:220px;
     display:flex; align-items:center; gap:14px;
-    background:#121210; border:1px solid var(--line); border-radius:16px;
-    padding:18px 20px;
+    padding:6px 28px;
+    border-left:1px solid var(--line);
   }
+  .trust-item:first-child{border-left:none; padding-left:0;}
+  .trust-item:last-child{padding-right:0;}
   .trust-item svg{color:var(--accent); flex-shrink:0;}
-  .trust-item strong{display:block; font-family:'Poppins',sans-serif; font-size:0.92rem; font-weight:700;}
+  .trust-item strong{display:block; font-family:'Poppins',sans-serif; font-size:0.88rem; font-weight:700; text-transform:uppercase; letter-spacing:0.02em;}
   .trust-item span{display:block; font-size:0.78rem; color:var(--steel); margin-top:2px;}
   @media (max-width:640px){
-    .trust-bar-grid{flex-direction:column; gap:10px;}
-    .trust-item{padding:14px 16px;}
+    .trust-bar{margin-top:28px;}
+    .trust-bar-grid{flex-direction:column; gap:14px;}
+    .trust-item{padding:0 0 14px; border-left:none;}
+    .trust-item:not(:first-child){padding-top:14px; border-top:1px solid var(--line);}
   }
 
   .cat-shop{padding:48px 0 8px; border-bottom:none;}
+  .cat-shop-eyebrow{margin-bottom:10px;}
   .cat-shop-title{
-    font-size:1.15rem;
+    font-family:'Archivo Black',sans-serif;
+    font-size:1.6rem;
     text-transform:none;
-    margin-bottom:18px;
+    margin-bottom:22px;
   }
   .cat-shop-grid{
     display:flex;
     flex-wrap:wrap;
     gap:12px;
-  }
-  @media (min-width:641px){
-    .cat-shop-title{text-align:center;}
-    .cat-shop-grid{justify-content:center;}
   }
   .cat-shop-item{
     display:flex;
@@ -640,10 +642,14 @@
   }
   .hero-grid{ position:relative; z-index:1; }
   .hero .mono.eyebrow{color:#F4F3EE;}
-  .hero h1{color:#F4F3EE; -webkit-text-stroke:0;}
-  .hero h1 .out{
+  .hero h1{
     color:#F4F3EE;
-    -webkit-text-stroke:0;
+    font-family:'Archivo Black',sans-serif;
+    text-transform:uppercase;
+    letter-spacing:0;
+  }
+  .hero h1 .out{
+    color:var(--accent);
   }
   .hero p{color:#F4F3EE;}
   .hero .btn-outline{border-color:#F4F3EE; color:#F4F3EE;}
@@ -684,7 +690,8 @@
   }
   .hero .eyebrow{margin-bottom:22px;}
   .hero h1{
-    font-size:clamp(3rem, 7vw, 6rem);
+    font-size:clamp(2.6rem, 6.4vw, 5.4rem);
+    line-height:0.98;
   }
 
   .hero p{
@@ -962,8 +969,20 @@
     color:var(--ink); margin-bottom:2px;
   }
   .cat-card .urgency.low-stock{color:var(--accent); font-style:italic; margin-bottom:16px;}
-  .cat-card-actions{display:flex; flex-direction:column; gap:8px; margin-top:16px;}
-  .cat-card-actions .btn{width:100%; text-align:center; padding:9px 12px; font-size:0.66rem; cursor:pointer;}
+  .cat-card-actions{display:flex; flex-direction:column; gap:10px; margin-top:18px;}
+  .cat-card-actions .btn{text-align:center; cursor:pointer;}
+  .cat-card-actions .btn-accent{
+    order:1; width:100%;
+    padding:13px 12px; font-size:0.74rem; font-weight:800; letter-spacing:0.07em;
+    box-shadow:0 8px 18px rgba(193,39,45,0.28);
+  }
+  .cat-card-actions .btn-outline{
+    order:2; width:auto; align-self:center;
+    border:none; background:none; padding:0;
+    font-size:0.68rem; font-weight:600; letter-spacing:0.02em;
+    color:var(--steel); text-decoration:underline; text-underline-offset:3px;
+  }
+  .cat-card-actions .btn-outline:hover{background:none; color:var(--ink);}
 
   /* Modal de detalle de producto */
   .bike-modal-overlay{
@@ -1013,7 +1032,8 @@
   .bike-gallery-dots span.active{background:var(--accent);}
   .bike-modal-info{padding:44px 40px;}
   .bike-modal-info .mono{margin-bottom:14px;}
-  .bike-modal-info h3{font-size:2rem; margin-bottom:18px;}
+  .bike-modal-info h3{font-family:'Archivo Black',sans-serif; font-size:1.9rem; margin-bottom:18px;}
+  .bike-modal-info .price:not(:has(.price-was-inline)){display:none;}
   .bike-modal-info .specs{list-style:none; margin:22px 0 30px; padding:0;}
   .bike-modal-info .specs li{
     padding:12px 0; border-top:1px solid var(--line);
@@ -1126,7 +1146,7 @@
   }
   .helmet-main-img img{width:100%; height:auto; max-height:52vh; object-fit:contain;}
   .helmet-detail-info .mono{color:var(--accent); margin-bottom:12px;}
-  .helmet-detail-info h1{font-size:1.9rem; text-transform:none; margin-bottom:18px; line-height:1.15;}
+  .helmet-detail-info h1{font-family:'Archivo Black',sans-serif; font-size:1.8rem; text-transform:none; margin-bottom:18px; line-height:1.15;}
   .helmet-price-box{
     background:var(--paper-2); border-radius:12px;
     padding:20px 22px; margin-bottom:20px;
@@ -1196,10 +1216,17 @@
   .contact-grid{
     display:grid; grid-template-columns:1fr 1fr; gap:70px;
   }
-  .contact-info h3{font-family:'Poppins'; text-transform:none; font-size:1rem; font-weight:700; margin-bottom:6px;}
-  .info-block{margin-bottom:30px;}
-  .info-block .val{color:var(--steel); font-size:0.95rem;}
+  .info-block{margin-bottom:26px;}
+  .info-block h3{
+    font-family:'Poppins',sans-serif; text-transform:uppercase; letter-spacing:0.05em;
+    font-size:0.74rem; font-weight:700; color:var(--steel); margin-bottom:8px;
+  }
+  .info-block .val{color:var(--ink); font-size:1.05rem; font-weight:600; line-height:1.45;}
   .info-block .val a:hover{color:var(--accent);}
+  .info-chips{display:flex; flex-wrap:wrap; gap:18px; margin-bottom:32px;}
+  .info-chip{display:flex; align-items:center; gap:8px; font-size:0.84rem; color:var(--steel); transition:color .2s ease;}
+  .info-chip svg{flex-shrink:0; opacity:0.85;}
+  .info-chip:hover{color:var(--accent);}
   .map-box{
     border:1px solid var(--line); background:var(--paper-2);
     aspect-ratio:4/3; position:relative; overflow:hidden;
@@ -1371,6 +1398,7 @@
 
 <section class="cat-shop">
   <div class="wrap">
+    <div class="mono cat-shop-eyebrow">Elegí tu categoría</div>
     <h2 class="cat-shop-title">Comprá por categoría</h2>
     <div class="cat-shop-grid">
       <button type="button" class="cat-shop-item" onclick="goToCategory('twitter')">
@@ -1435,7 +1463,7 @@
       <button type="button" class="cat-filter-reset" onclick="resetCategoryFilter()">Volver al inicio</button>
     </div>
     <div class="section-head">
-      <h2 style="text-transform:none; font-size:1.6rem;">01 — Catálogo</h2>
+      <h2 style="font-family:'Archivo Black',sans-serif; text-transform:none; font-size:1.6rem;">01 — Catálogo</h2>
       <div class="cat-head-right">
         <div class="cat-filter-wrap bike-extra-filter">
           <button type="button" class="cat-filter-btn" id="sizeFilterBtn" aria-haspopup="true" aria-expanded="false" onclick="toggleSizeFilterMenu()">
@@ -3359,6 +3387,7 @@
 
 <section id="destacados" class="cat-shop">
   <div class="wrap">
+    <div class="mono cat-shop-eyebrow">Lo más pedido</div>
     <h2 class="cat-shop-title">Productos destacados</h2>
     <div class="featured-grid" id="featuredGrid"></div>
   </div>
@@ -3367,7 +3396,7 @@
 <section id="distribuidores">
   <div class="wrap">
     <div class="mono" style="margin-bottom:16px; text-align:center;">02 — Distribuidores</div>
-    <h2 style="text-align:center; margin-bottom:6px;">Somos distribuidores <span style="color:var(--accent);">oficiales</span></h2>
+    <h2 style="font-family:'Archivo Black',sans-serif; text-align:center; margin-bottom:6px;">Somos distribuidores <span style="color:var(--accent);">oficiales</span></h2>
     <p style="text-align:center; font-family:'Poppins',sans-serif; font-weight:600; color:var(--steel); text-transform:uppercase; letter-spacing:0.06em; font-size:0.85rem; margin-bottom:56px;">Dealer oficial</p>
     <div class="dist-logos">
       <button type="button" class="dist-logo" onclick="goToDistribuidor('fox')" aria-label="Ir a Fox">
@@ -3396,7 +3425,7 @@
   <div class="wrap contact-grid">
     <div class="contact-info">
       <div class="mono" style="margin-bottom:16px;">03 — Contacto</div>
-      <h2 style="margin-bottom:34px;">Pasá por<br>el local.</h2>
+      <h2 style="font-family:'Archivo Black',sans-serif; margin-bottom:34px;">Pasá por<br>el local.</h2>
       <div class="info-block">
         <h3>Dirección</h3>
         <div class="val">Remedios de Escalada 660, Río Ceballos, Córdoba, Argentina</div>
@@ -3405,13 +3434,15 @@
         <h3>Horarios</h3>
         <div class="val">Lunes a viernes, 09:30 a 13:00 h y 17:00 a 21:00 h<br>Sábados, 09:30 a 13:00 h</div>
       </div>
-      <div class="info-block">
-        <h3>Contacto</h3>
-        <div class="val">hola@mendezrace.com.ar</div>
-      </div>
-      <div class="info-block">
-        <h3>Instagram</h3>
-        <div class="val"><a href="https://www.instagram.com/mendezracearg/" target="_blank" rel="noopener">@mendezracearg</a></div>
+      <div class="info-chips">
+        <a href="mailto:hola@mendezrace.com.ar" class="info-chip">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/></svg>
+          hola@mendezrace.com.ar
+        </a>
+        <a href="https://www.instagram.com/mendezracearg/" target="_blank" rel="noopener" class="info-chip">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="16.3" cy="7.7" r="0.6" fill="currentColor" stroke="none"/></svg>
+          @mendezracearg
+        </a>
       </div>
       <a href="https://wa.me/5493512408980" target="_blank" rel="noopener" class="btn btn-solid whatsapp-cta">Escribinos por WhatsApp</a>
     </div>
@@ -3590,15 +3621,15 @@
         <div class="cart-section-title">Notas del pedido</div>
         <div class="cart-buyer-form">
           <label class="cart-field">
-            <span>Notas del pedido (opcional)</span>
+            <span>Opcional</span>
             <textarea id="cartNotes" placeholder="Notas sobre tu pedido, por ejemplo, notas especiales para la entrega." rows="2"></textarea>
           </label>
         </div>
 
         <button type="button" class="btn btn-accent cart-checkout-btn" id="cartCheckoutBtn" onclick="startCheckout()">Finalizar compra</button>
         <div class="cart-trust">
-          <span>🔒 Pago seguro procesado por Mercado Pago</span>
-          <span>💬 Coordinamos la entrega con vos por WhatsApp</span>
+          <span><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Pago seguro procesado por Mercado Pago</span>
+          <span><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> Coordinamos la entrega con vos por WhatsApp</span>
         </div>
         <div class="cart-checkout-msg" id="cartCheckoutMsg"></div>
       </div>
