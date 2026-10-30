@@ -168,7 +168,7 @@
   <h1>Admin</h1>
   <div class="sub">mendezrace.bike</div>
   <input type="password" id="pwInput" placeholder="Contraseña">
-  <input type="text" id="totpInput" placeholder="Código de 6 dígitos (Authenticator)" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="margin-top:0;">
+  <input type="text" id="totpInput" placeholder="Código de 6 dígitos (opcional por ahora)" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="margin-top:0;">
   <button type="button" onclick="login()">Entrar</button>
   <div class="msg" id="gateMsg"></div>
 </div>
@@ -291,8 +291,8 @@ var CATEGORY_DEFS = [
 async function login(){
   var pw = document.getElementById('pwInput').value;
   var code = document.getElementById('totpInput').value.trim();
-  if(!pw || !code){
-    document.getElementById('gateMsg').textContent = 'Ingresá la contraseña y el código de 6 dígitos.';
+  if(!pw){
+    document.getElementById('gateMsg').textContent = 'Ingresá la contraseña.';
     return;
   }
   document.getElementById('gateMsg').textContent = 'Verificando...';
