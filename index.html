@@ -24,7 +24,7 @@
   "name": "Mendezrace",
   "url": "https://mendezrace.bike/",
   "telephone": "+5493512408980",
-  "email": "hola@mendezrace.com.ar",
+  "email": "mendezracebikes@gmail.com",
   "address": {
     "@type": "PostalAddress",
     "streetAddress": "Remedios de Escalada 660",
@@ -1270,9 +1270,34 @@
   .map-box:hover .map-box-badge, .map-box:active .map-box-badge{background:#a01f24; transform:translateY(-2px);}
 
   footer{
-    padding:34px 32px; display:flex; justify-content:space-between;
+    padding:28px 32px 30px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; gap:18px;
     font-family:'Poppins',sans-serif; font-weight:600; font-size:0.7rem;
     text-transform:uppercase; color:var(--steel); letter-spacing:0.05em;
+    border-top:1px solid var(--line);
+  }
+  .footer-brand{display:flex; flex-direction:column; gap:6px;}
+  .footer-fiscal{text-transform:none; font-weight:500; letter-spacing:0; font-size:0.72rem; color:var(--steel);}
+  .footer-links{display:flex; flex-wrap:wrap; align-items:center; gap:14px;}
+  .footer-link{text-transform:none; font-weight:600; letter-spacing:0; color:var(--steel);}
+  .footer-link:hover, .footer-link:active{color:var(--accent);}
+  .footer-withdrawal-btn{
+    font-family:'Poppins',sans-serif; font-weight:700; font-size:0.72rem;
+    text-transform:none; letter-spacing:0;
+    color:var(--accent); background:none; border:1px solid var(--accent);
+    border-radius:999px; padding:8px 16px; cursor:pointer;
+  }
+  .footer-withdrawal-btn:hover, .footer-withdrawal-btn:active{background:var(--accent); color:#fff;}
+  @media (max-width:640px){
+    footer{flex-direction:column; align-items:flex-start; padding:26px 20px 30px;}
+  }
+  .legal-doc-body{max-width:760px; margin:0 auto; padding:40px 32px 80px;}
+  .legal-doc-body h1{font-family:'Archivo Black',sans-serif; font-size:1.8rem; margin-bottom:8px;}
+  .legal-doc-body .legal-updated{color:var(--steel); font-size:0.8rem; margin-bottom:32px;}
+  .legal-doc-body h2{font-size:1.05rem; margin:28px 0 10px; text-transform:none;}
+  .legal-doc-body p{color:var(--steel); font-size:0.92rem; line-height:1.7; margin-bottom:14px;}
+  .legal-doc-body a{color:var(--accent);}
+  @media (max-width:800px){
+    .legal-doc-body{padding:24px 18px 60px;}
   }
 
   @media (max-width:860px){
@@ -3444,9 +3469,9 @@
         <div class="val">Lunes a viernes, 09:30 a 13:00 h y 17:00 a 21:00 h<br>Sábados, 09:30 a 13:00 h</div>
       </div>
       <div class="info-chips">
-        <a href="mailto:hola@mendezrace.com.ar" class="info-chip">
+        <a href="mailto:mendezracebikes@gmail.com" class="info-chip">
           <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/></svg>
-          hola@mendezrace.com.ar
+          mendezracebikes@gmail.com
         </a>
         <a href="https://www.instagram.com/mendezracearg/" target="_blank" rel="noopener" class="info-chip">
           <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="16.3" cy="7.7" r="0.6" fill="currentColor" stroke="none"/></svg>
@@ -3683,10 +3708,116 @@
   </div>
 </div>
 
+<div class="helmet-detail-overlay" id="privacyOverlay">
+  <div class="helmet-detail-topbar">
+    <div class="helmet-breadcrumb"><span onclick="closePrivacyPolicy()">Inicio</span> · <span>Política de Privacidad</span></div>
+    <button class="helmet-detail-close" onclick="closePrivacyPolicy()" aria-label="Cerrar">✕</button>
+  </div>
+  <div class="legal-doc-body">
+    <h1>Política de Privacidad</h1>
+    <div class="legal-updated">Última actualización: 29 de octubre de 2026</div>
+    <p>En mendezrace (Mario David Méndez, CUIT 20-28430611-3, Responsable Inscripto), con domicilio en Remedios de Escalada 660, Río Ceballos, Córdoba, Argentina, respetamos tu privacidad y protegemos los datos personales que nos confiás al comprar o contactarnos.</p>
+    <h2>1. Responsable del tratamiento de datos</h2>
+    <p>Mario David Méndez — mendezracebikes@gmail.com</p>
+    <h2>2. Qué datos recolectamos</h2>
+    <p>Cuando realizás una compra o consulta, podemos pedirte: nombre y apellido, DNI/CUIT/CUIL, dirección de entrega, email, teléfono, y datos de la compra (productos, método de pago elegido).</p>
+    <h2>3. Para qué los usamos</h2>
+    <p>Usamos tus datos para procesar tu pedido y coordinar la entrega o el retiro en el local, comunicarnos con vos por email o WhatsApp sobre el estado de tu compra, emitir la facturación correspondiente, y cumplir con obligaciones legales e impositivas. No usamos tus datos para fines distintos a los indicados, ni los vendemos a terceros.</p>
+    <h2>4. Dónde se almacenan tus datos</h2>
+    <p>Tus datos de compra se procesan a través de Mercado Pago (para pagos) y se guardan de forma segura en nuestra infraestructura (Netlify). El sitio está alojado en GitHub Pages.</p>
+    <h2>5. Con quién compartimos tus datos</h2>
+    <p>Solo con los proveedores necesarios para completar tu compra: Mercado Pago, para el procesamiento de pagos, y el servicio de envío que coordinamos con vos cuando corresponde.</p>
+    <h2>6. Tus derechos</h2>
+    <p>De acuerdo a la Ley 25.326 de Protección de Datos Personales, tenés derecho a acceder, rectificar, actualizar o solicitar la supresión de tus datos personales. Para ejercer estos derechos, escribinos a mendezracebikes@gmail.com. La Agencia de Acceso a la Información Pública, en su carácter de Órgano de Control de la Ley N.º 25.326, tiene la atribución de atender las denuncias y reclamos que se interpongan con relación al incumplimiento de las normas sobre protección de datos personales.</p>
+    <h2>7. Cookies</h2>
+    <p>Este sitio no utiliza cookies de seguimiento ni de publicidad.</p>
+    <h2>8. Cambios a esta política</h2>
+    <p>Podemos actualizar esta política ocasionalmente. Te recomendamos revisarla cada tanto.</p>
+    <h2>9. Contacto</h2>
+    <p>Ante cualquier duda sobre esta política o tus datos personales, escribinos a mendezracebikes@gmail.com o por WhatsApp.</p>
+  </div>
+</div>
+
+<div class="helmet-detail-overlay" id="withdrawalOverlay">
+  <div class="helmet-detail-topbar">
+    <div class="helmet-breadcrumb"><span onclick="closeWithdrawal()">Inicio</span> · <span>Botón de Arrepentimiento</span></div>
+    <button class="helmet-detail-close" onclick="closeWithdrawal()" aria-label="Cerrar">✕</button>
+  </div>
+  <div class="legal-doc-body">
+    <h1>Botón de Arrepentimiento</h1>
+    <p>Tenés derecho a arrepentirte de tu compra dentro de los 10 días corridos desde que recibiste el producto, sin necesidad de dar motivo (Artículo 34, Ley 24.240 de Defensa del Consumidor).</p>
+    <p>Completá estos datos y te contactamos por WhatsApp para coordinar la devolución.</p>
+    <div class="cart-buyer-form" style="margin-top:24px;">
+      <label class="cart-field">
+        <span>Nombre y apellido *</span>
+        <input type="text" id="withdrawalName" placeholder="Nombre con el que compraste">
+      </label>
+      <label class="cart-field">
+        <span>Email o teléfono de la compra *</span>
+        <input type="text" id="withdrawalContact" placeholder="El que usaste al comprar">
+      </label>
+      <label class="cart-field">
+        <span>Producto o número de pedido *</span>
+        <input type="text" id="withdrawalOrder" placeholder="Qué compraste, o el número de pedido si lo tenés">
+      </label>
+      <label class="cart-field">
+        <span>Comentario (opcional)</span>
+        <textarea id="withdrawalNote" rows="2" placeholder="Algo más que quieras contarnos (no es obligatorio)"></textarea>
+      </label>
+    </div>
+    <button type="button" class="btn btn-accent" style="margin-top:20px; width:100%; text-align:center; border:none; cursor:pointer;" onclick="submitWithdrawal()">Enviar por WhatsApp</button>
+  </div>
+</div>
+
 <footer>
-  <div>© 2026 mendezrace</div>
+  <div class="footer-brand">
+    <div>© 2026 mendezrace</div>
+    <div class="footer-fiscal">Mario David Méndez · CUIT 20-28430611-3 · Responsable Inscripto</div>
+  </div>
+  <div class="footer-links">
+    <a href="#" class="footer-link" onclick="openPrivacyPolicy(); return false;">Política de Privacidad</a>
+    <button type="button" class="footer-withdrawal-btn" onclick="openWithdrawal()">Botón de Arrepentimiento</button>
+  </div>
+</footer>
+
 <script>
 var WHATSAPP_NUMBER = '5493512408980';
+
+function openPrivacyPolicy(){
+  document.getElementById('privacyOverlay').classList.add('open');
+  document.documentElement.style.overflow = 'hidden';
+}
+function closePrivacyPolicy(){
+  document.getElementById('privacyOverlay').classList.remove('open');
+  document.documentElement.style.overflow = '';
+}
+function openWithdrawal(){
+  document.getElementById('withdrawalOverlay').classList.add('open');
+  document.documentElement.style.overflow = 'hidden';
+}
+function closeWithdrawal(){
+  document.getElementById('withdrawalOverlay').classList.remove('open');
+  document.documentElement.style.overflow = '';
+}
+function submitWithdrawal(){
+  var name = document.getElementById('withdrawalName').value.trim();
+  var contact = document.getElementById('withdrawalContact').value.trim();
+  var order = document.getElementById('withdrawalOrder').value.trim();
+  var note = document.getElementById('withdrawalNote').value.trim();
+  if(!name || !contact || !order){
+    alert('Completá nombre, contacto y producto/pedido para continuar.');
+    return;
+  }
+  var msg = 'Hola, quiero ejercer mi derecho de arrepentimiento (Ley 24.240).\n' +
+    'Nombre: ' + name + '\n' +
+    'Email/Teléfono de la compra: ' + contact + '\n' +
+    'Producto o pedido: ' + order +
+    (note ? ('\nComentario: ' + note) : '');
+  window.open('https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+}
+</script>
+
+<script>
 
 var bikesData = {
   tw2400: {
