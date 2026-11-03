@@ -467,7 +467,7 @@
     .nav-search-icon{padding:6px;}
     .nav-search-icon svg{width:16px; height:16px;}
     .cart-icon-btn{order:3; position:relative; top:6px;}
-    .mobile-hide{display:none;}
+    .mobile-hide{display:none !important;}
   }
   @media (min-width:861px){
     .brand{flex:0 0 auto; justify-content:flex-start; margin-left:74px;}
@@ -1429,8 +1429,8 @@
     <div class="wrap hero-grid">
     <div>
       <h1>Rodá lo<br><span class="out">que sos.</span></h1>
-      <p style="font-weight:600; display:flex; align-items:center; gap:10px; max-width:none;">
-        Distribuidor oficial <span class="mobile-hide"></span>
+      <p class="mobile-hide" style="font-weight:600; display:flex; align-items:center; gap:10px; max-width:none;">
+        Distribuidor oficial
         <img src="https://ss-cnt-001c.esmsv.com/r/content/host2/1d9bf300bc924f298fc682614ae612d3/img/Mesadetrabajo3.webp" alt="Twitter Bikes" style="height:20px; width:auto;">
       </p>
       <div class="filter-tags">
@@ -5084,7 +5084,8 @@ function openHelmetDetail(cardEl){
   var talle = parts.slice(1).join(' · ') || '';
 
   var galleryAttr = cardEl.getAttribute('data-gallery');
-  helmetGalleryImages = galleryAttr ? galleryAttr.split('|') : [img.src];
+  var imgSrc = img.getAttribute('data-src') || img.src;
+  helmetGalleryImages = galleryAttr ? galleryAttr.split('|') : [imgSrc];
   helmetGalleryIndex = 0;
   helmetGalleryShow(0);
   var showArrows = helmetGalleryImages.length > 1;
@@ -5146,9 +5147,10 @@ function buildHelmetThumbs(activeCard, catKey){
     var shown = expanded ? cards : cards.slice(0, limit);
     shown.forEach(function(card){
       var img = card.querySelector('.bike-icon');
+      var imgSrc = img.getAttribute('data-src') || img.src;
       var thumb = document.createElement('div');
       thumb.className = 'helmet-thumb' + (card === activeCard ? ' active' : '');
-      thumb.innerHTML = '<img src="' + img.src + '" alt="">';
+      thumb.innerHTML = '<img src="' + imgSrc + '" alt="">';
       thumb.onclick = function(){ openHelmetDetail(card); };
       wrap.appendChild(thumb);
     });
@@ -5916,7 +5918,7 @@ function buildExtraProductsIndex(){
       cat: mono ? mono.textContent.trim() : '',
       desc: desc ? desc.textContent.trim() : '',
       price: price ? price.textContent.trim() : '',
-      img: img ? img.src : ''
+      img: img ? (img.getAttribute('data-src') || img.src) : ''
     };
   });
 }
@@ -6201,6 +6203,9 @@ document.addEventListener('wheel', function(e){
   var scroller = e.target.closest('.cat-row-track, .cat-shop-grid, .helmet-thumbs');
   if(!scroller) return;
   if(scroller.classList.contains('expanded')) return;
+  // .helmet-thumbs solo es una tira horizontal en mobile (ver @media max-width:800px); en compu
+  // es una columna vertical con su propio scroll interno, así que ahí no hay que redirigir la rueda.
+  if(scroller.classList.contains('helmet-thumbs') && getComputedStyle(scroller).flexDirection !== 'row') return;
   if(Math.abs(e.deltaY) > Math.abs(e.deltaX)){
     e.preventDefault();
     disableSmoothScroll();
