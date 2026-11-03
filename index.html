@@ -385,26 +385,37 @@
     cursor:pointer;
     box-shadow:0 8px 20px rgba(0,0,0,0.35);
   }
-  .mobile-menu-list{
-    position:absolute;
-    top:calc(100% + 10px);
-    left:0;
-    list-style:none;
-    margin:0;
-    padding:0;
-    min-width:160px;
-    max-height:0;
-    overflow:hidden;
-    transition:max-height .2s ease;
-    background:#0d0e0c;
-    border-radius:16px;
-    box-shadow:0 8px 20px rgba(0,0,0,0.35);
-    z-index:55;
+  .mobile-menu-backdrop{
+    display:none;
+    position:fixed; inset:0; z-index:299;
+    background:rgba(0,0,0,0.55);
   }
-  .mobile-menu-list.open{max-height:390px; padding:6px 16px; overflow-y:auto;}
+  .mobile-menu-backdrop.open{display:block;}
+  .mobile-menu-list{
+    position:fixed; top:0; left:0;
+    height:100vh; height:100dvh;
+    z-index:300;
+    width:100%; max-width:300px;
+    margin:0; padding:0 0 24px;
+    list-style:none;
+    background:#0d0e0c;
+    box-shadow:16px 0 40px rgba(0,0,0,0.4);
+    overflow-y:auto;
+    transform:translateX(-100%);
+    transition:transform .28s cubic-bezier(.2,.7,.3,1);
+  }
+  .mobile-menu-list.open{transform:translateX(0);}
+  @media (prefers-reduced-motion: reduce){
+    .mobile-menu-list{transition:none;}
+  }
   .mobile-menu-list li{border-top:1px solid rgba(255,255,255,0.08);}
   .mobile-menu-list li:first-child{border-top:none;}
-  .mobile-menu-list li.menu-logo{display:flex; justify-content:center; padding:10px 4px 8px; border-top:none !important;}
+  .mobile-menu-list > li{padding:0 16px;}
+  .mobile-menu-list li.menu-logo{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 16px; border-top:none !important; border-bottom:1px solid rgba(255,255,255,0.08);
+    position:sticky; top:0; background:#0d0e0c; z-index:2;
+  }
   .mobile-menu-list li.menu-logo img{height:26px; width:auto; display:block;}
   .mobile-menu-list button{
     width:100%;
@@ -415,7 +426,7 @@
     font-family:'Poppins',sans-serif;
     font-weight:600;
     font-size:0.82rem;
-    padding:10px 4px;
+    padding:12px 4px;
     cursor:pointer;
   }
   .mobile-menu-list button:hover{color:var(--accent);}
@@ -1384,7 +1395,8 @@
       <button type="button" class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Menú" aria-expanded="false" onclick="toggleMobileMenu()">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
-      <ul class="mobile-menu-list" id="mobileMenuList"><li class="menu-logo"><img src="img/211e73bf6dc22ecc.webp" alt="Mendezrace"></li>
+      <div class="mobile-menu-backdrop" id="mobileMenuBackdrop" onclick="closeMobileMenu()"></div>
+      <ul class="mobile-menu-list" id="mobileMenuList"><li class="menu-logo"><img src="img/211e73bf6dc22ecc.webp" alt="Mendezrace"><button type="button" class="cart-close" onclick="closeMobileMenu()" aria-label="Cerrar menú">✕</button></li>
         <li class="menu-section">Categorías</li>
         <li class="menu-has-sub">
           <button type="button" class="menu-parent" id="bicisMenuToggle" aria-expanded="false" onclick="toggleBicisSubmenu()">
@@ -5928,14 +5940,18 @@ function toggleMobileMenu(){
   var list = document.getElementById('mobileMenuList');
   var btn = document.getElementById('mobileMenuToggle');
   var isOpen = list.classList.toggle('open');
+  document.getElementById('mobileMenuBackdrop').classList.toggle('open', isOpen);
   btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  document.body.style.overflow = isOpen ? 'hidden' : '';
 }
 
 function closeMobileMenu(){
   document.getElementById('mobileMenuList').classList.remove('open');
+  document.getElementById('mobileMenuBackdrop').classList.remove('open');
   document.getElementById('mobileMenuToggle').setAttribute('aria-expanded','false');
   document.getElementById('bicisSubmenu').classList.remove('open');
   document.getElementById('bicisMenuToggle').setAttribute('aria-expanded','false');
+  document.body.style.overflow = '';
 }
 
 function goHome(){
