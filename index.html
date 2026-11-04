@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://ss-cnt-001c.esmsv.com; connect-src 'self' https://tiny-pasca-2c9d60.netlify.app https://docs.google.com https://*.googleusercontent.com; frame-src https://www.openstreetmap.org; base-uri 'self'; form-action 'self'; object-src 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://ss-cnt-001c.esmsv.com https://*.googleusercontent.com; connect-src 'self' https://tiny-pasca-2c9d60.netlify.app https://docs.google.com https://*.googleusercontent.com; frame-src https://www.openstreetmap.org; base-uri 'self'; form-action 'self'; object-src 'none';">
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
 <title>Mendezrace | Distribuidor oficial Twitter Bikes en Río Ceballos, Córdoba</title>
 <meta name="description" content="Distribuidor oficial de bicicletas Twitter en Argentina. Ruta, Mountain, Gravel, cascos y repuestos. Envíos a todo el país. Local en Río Ceballos, Córdoba.">
@@ -834,6 +834,45 @@
   #catalogo > .wrap:nth-of-type(3){ position:relative; z-index:1; }
   @media (max-width:640px){
     .cat-bicicross-bg{height:460px; background-position:center 15%;}
+  }
+
+  .reviews-grid{display:grid; grid-template-columns:0.9fr 1.1fr; gap:60px; align-items:center; margin-top:8px;}
+  .reviews-score-row{display:flex; align-items:baseline; gap:12px; margin:18px 0 6px;}
+  .reviews-score{font-family:'Archivo Black',sans-serif; font-size:2.6rem; color:var(--ink);}
+  .reviews-stars{color:var(--ink); font-size:1.3rem; letter-spacing:2px;}
+  .reviews-count{display:flex; align-items:center; gap:8px; color:var(--steel); font-size:0.85rem; margin-bottom:28px;}
+  .reviews-actions{display:flex; flex-direction:column; align-items:flex-start; gap:14px;}
+  .reviews-see-all{font-family:'Poppins',sans-serif; font-weight:600; font-size:0.82rem; color:var(--steel);}
+  .reviews-see-all:hover, .reviews-see-all:active{color:var(--accent);}
+  .review-quote{border-left:3px solid var(--accent); padding-left:28px;}
+  .review-quote-author{display:flex; align-items:center; gap:14px; margin-bottom:18px;}
+  .review-avatar, .review-avatar-fallback{
+    width:52px; height:52px; border-radius:50%; flex-shrink:0; object-fit:cover;
+    border:2px solid var(--line);
+  }
+  .review-avatar-fallback{
+    display:none; align-items:center; justify-content:center;
+    background:var(--accent); color:#fff; font-family:'Archivo Black',sans-serif; font-size:1.2rem;
+    border-color:var(--accent);
+  }
+  .review-quote-author cite{font-style:normal; display:block; font-family:'Poppins',sans-serif; font-weight:700; font-size:0.98rem; color:var(--ink); margin-bottom:3px;}
+  .review-quote p{font-family:'Poppins',sans-serif; font-weight:600; font-size:1.25rem; line-height:1.45; color:var(--ink);}
+  .review-quote-stars{color:var(--ink); font-size:0.78rem; letter-spacing:2px;}
+  @media (max-width:860px){
+    .reviews-grid{grid-template-columns:1fr; gap:18px;}
+    .reviews-score-row{margin:8px 0 4px; gap:8px;}
+    .reviews-score{font-size:1.6rem;}
+    .reviews-stars{font-size:1rem;}
+    .reviews-count{margin-bottom:14px; font-size:0.76rem;}
+    .reviews-actions{flex-direction:row; flex-wrap:wrap; align-items:center; gap:8px 18px;}
+    .reviews-actions .btn{padding:11px 20px; font-size:0.66rem;}
+    .review-quote{padding-left:16px; border-left-width:2px;}
+    .review-quote-author{gap:10px; margin-bottom:12px;}
+    .review-avatar, .review-avatar-fallback{width:40px; height:40px;}
+    .review-avatar-fallback{font-size:1rem;}
+    .review-quote-author cite{font-size:0.86rem;}
+    .review-quote p{font-size:1.02rem; line-height:1.35;}
+    .review-quote-stars{font-size:0.74rem;}
   }
 
   .dist-logos{display:flex; justify-content:center; align-items:center; gap:64px; flex-wrap:wrap; margin-bottom:48px;}
@@ -3437,6 +3476,38 @@
   </div>
 </section>
 
+<section id="googleReviews" class="cat-shop">
+  <div class="wrap reviews-grid">
+    <div>
+      <div class="mono cat-shop-eyebrow">Lo que dicen de nosotros</div>
+      <h2 class="cat-shop-title">Reseñas en Google</h2>
+      <div class="reviews-score-row">
+        <span class="reviews-score">5.0</span>
+        <span class="reviews-stars" aria-hidden="true">★★★★★</span>
+      </div>
+      <div class="reviews-count">
+        <svg width="16" height="16" viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+        Reseñas de Google
+      </div>
+      <div class="reviews-actions">
+        <a href="https://search.google.com/local/writereview?placeid=0x943281002999d68d:0xde76f8d319d7bc69" target="_blank" rel="noopener" class="btn btn-accent">Dejá tu reseña</a>
+        <a href="https://maps.app.goo.gl/RZortZw4swcDaXJG7" target="_blank" rel="noopener" class="reviews-see-all">Ver en Google Maps →</a>
+      </div>
+    </div>
+    <blockquote class="review-quote">
+      <div class="review-quote-author">
+        <img class="review-avatar" src="https://lh3.googleusercontent.com/a/ACg8ocKmJHWrm0fgyIci88mTHJ_ODnRo_NTugLKzIo7_2zdhjWKV=w96-h96-p-rp-mo-br100" alt="" referrerpolicy="no-referrer" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="review-avatar-fallback" aria-hidden="true">A</div>
+        <div>
+          <cite>Ale Garnacho</cite>
+          <span class="review-quote-stars" aria-hidden="true">★★★★★</span>
+        </div>
+      </div>
+      <p>Muy buena atención y calidad.</p>
+    </blockquote>
+  </div>
+</section>
+
 <section id="destacados" class="cat-shop">
   <div class="wrap">
     <div class="mono cat-shop-eyebrow">Lo más pedido</div>
@@ -5487,12 +5558,14 @@ function setPageMode(isHome){
   var trustBar = document.getElementById('trustBar');
   var dist = document.getElementById('distribuidores');
   var destacados = document.getElementById('destacados');
+  var googleReviews = document.getElementById('googleReviews');
   var catalogo = document.getElementById('catalogo');
   var catFilterWrap = document.getElementById('catFilterWrap');
   if(hero) hero.style.display = isHome ? '' : 'none';
   if(trustBar) trustBar.style.display = isHome ? '' : 'none';
   if(dist) dist.style.display = isHome ? '' : 'none';
   if(destacados) destacados.style.display = isHome ? '' : 'none';
+  if(googleReviews) googleReviews.style.display = isHome ? '' : 'none';
   if(catalogo) catalogo.style.display = isHome ? 'none' : '';
   if(catFilterWrap) catFilterWrap.style.display = isHome ? 'none' : '';
 }
