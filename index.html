@@ -937,6 +937,7 @@
   #distribuidores{
     position:relative;
     overflow:hidden;
+    border-bottom:none;
     background-image:url("img/e551f8eb124e901a.jpg");
     background-size:cover;
     background-position:center 10%;
@@ -945,10 +946,32 @@
   #distribuidores::before{
     content:'';
     position:absolute; inset:0;
-    background:linear-gradient(180deg, rgba(24,25,23,0.45) 0%, rgba(24,25,23,0.6) 50%, rgba(24,25,23,0.8) 100%);
+    background:linear-gradient(180deg, #181917 0%, rgba(24,25,23,0.4) 14%, rgba(24,25,23,0.45) 55%, rgba(24,25,23,0.72) 85%, #181917 100%);
     z-index:0;
   }
   #distribuidores .wrap{ position:relative; z-index:1; }
+
+  /* ---------- FAQ ---------- */
+  #faq{ border-bottom:none; }
+  .faq-list{ max-width:720px; margin:0 auto; }
+  .faq-item{ border-bottom:1px solid rgba(244,243,238,0.1); }
+  .faq-item:first-child{ border-top:1px solid rgba(244,243,238,0.1); }
+  .faq-item summary{
+    list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:18px;
+    padding:22px 2px; font-family:'Poppins',sans-serif; font-weight:700; font-size:1rem; color:var(--ink);
+  }
+  .faq-item summary::-webkit-details-marker{ display:none; }
+  .faq-icon{
+    width:28px; height:28px; border-radius:50%; border:1.5px solid var(--accent); color:var(--accent);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1.2rem; line-height:1;
+    transition:transform .2s ease, background .2s ease, color .2s ease;
+  }
+  .faq-item[open] .faq-icon{ background:var(--accent); color:#fff; transform:rotate(45deg); }
+  .faq-answer{ padding:0 30px 24px 2px; color:var(--steel); font-family:'Poppins',sans-serif; font-weight:500; font-size:0.92rem; line-height:1.65; max-width:600px; }
+  @media (max-width:640px){
+    .faq-item summary{ padding:18px 0; font-size:0.92rem; }
+    .faq-answer{ padding:0 10px 20px 0; font-size:0.86rem; }
+  }
 
   #catalogo{ position:relative; border-bottom:none; }
   .cat-hero{
@@ -3874,10 +3897,43 @@
   </div>
 </section>
 
+<section id="faq">
+  <div class="wrap">
+    <div class="mono" style="margin-bottom:16px; text-align:center;">03 — Preguntas frecuentes</div>
+    <h2 style="font-family:'Archivo Black',sans-serif; text-align:center; margin-bottom:40px;">¿Dudas? <span style="color:var(--accent);">Empezá acá.</span></h2>
+    <div class="faq-list">
+      <details class="faq-item">
+        <summary>¿Hacen envíos a todo el país?<span class="faq-icon" aria-hidden="true">+</span></summary>
+        <div class="faq-answer">Sí. Coordinamos la entrega a cualquier punto de Argentina.</div>
+      </details>
+      <details class="faq-item">
+        <summary>¿Qué métodos de pago aceptan?<span class="faq-icon" aria-hidden="true">+</span></summary>
+        <div class="faq-answer">Tarjeta (en cuotas), transferencia o link de pago, todo procesado por Mercado Pago.</div>
+      </details>
+      <details class="faq-item">
+        <summary>¿Puedo devolver o cambiar algo?<span class="faq-icon" aria-hidden="true">+</span></summary>
+        <div class="faq-answer">Sí, tenés 10 días corridos para arrepentirte de la compra sin dar motivo (Ley 24.240).</div>
+      </details>
+      <details class="faq-item">
+        <summary>¿Son distribuidores oficiales?<span class="faq-icon" aria-hidden="true">+</span></summary>
+        <div class="faq-answer">Sí, de Twitter Bikes, Fox, Troy Lee Designs y Bicicross.</div>
+      </details>
+      <details class="faq-item">
+        <summary>¿Tienen local físico?<span class="faq-icon" aria-hidden="true">+</span></summary>
+        <div class="faq-answer">Sí, en Río Ceballos, Córdoba. Los datos y horarios están más abajo.</div>
+      </details>
+      <details class="faq-item">
+        <summary>¿Cómo consulto antes de comprar?<span class="faq-icon" aria-hidden="true">+</span></summary>
+        <div class="faq-answer">Por WhatsApp, te asesoramos para elegir sin compromiso.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
 <section id="contacto" style="border-bottom:none;">
   <div class="wrap contact-grid">
     <div class="contact-info">
-      <div class="mono" style="margin-bottom:16px;">03 — Contacto</div>
+      <div class="mono" style="margin-bottom:16px;">04 — Contacto</div>
       <h2 style="font-family:'Archivo Black',sans-serif; margin-bottom:34px;">Pasá por<br>el local.</h2>
       <div class="info-block">
         <h3>Dirección</h3>
