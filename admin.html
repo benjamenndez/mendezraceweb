@@ -8,114 +8,181 @@
 <title>Mendezrace · Admin</title>
 <meta name="robots" content="noindex, nofollow">
 <style>
-  :root{ --ink:#181917; --paper:#F4F3EE; --accent:#c1272d; --line:#e3e1d8; --steel:#6b6d66; }
+  :root{
+    --bg:#f5f5f7; --panel:#ffffff; --panel-2:#fbfbfd;
+    --ink:#1d1d1f; --steel:#6e6e73; --faint:#86868b;
+    --line:#e5e5ea; --line-2:#ececec;
+    --accent:#c1272d; --accent-dark:#9e1f24; --accent-tint:#fbeaea;
+    --green:#1e7b34; --green-tint:#e6f6ea;
+    --amber:#b4690e; --amber-tint:#fff4e5;
+    --red:#c53030; --red-tint:#fdecec;
+    --radius:14px; --radius-sm:10px;
+    --shadow:0 1px 2px rgba(0,0,0,.04), 0 1px 1px rgba(0,0,0,.03);
+    --shadow-md:0 2px 10px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  }
   *{box-sizing:border-box;}
   body{
-    margin:0; font-family:'Poppins',Arial,sans-serif; background:var(--ink); color:var(--paper);
-    min-height:100vh;
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--ink); min-height:100vh; -webkit-font-smoothing:antialiased;
   }
-  h1{font-size:1.25rem; margin:0 0 4px;}
-  h3{font-size:1rem; margin:0;}
-  .sub{color:#9a9c94; font-size:0.85rem; margin-bottom:18px;}
-  .gate{max-width:360px; margin:80px auto; text-align:center; padding:24px;}
+  h1{font-size:1.6rem; margin:0 0 4px; font-weight:700; letter-spacing:-0.01em;}
+  h3{font-size:1rem; margin:0; font-weight:600;}
+  a{color:inherit;}
+  .sub{color:var(--steel); font-size:0.92rem; margin-bottom:22px; line-height:1.5; max-width:640px;}
+
+  /* ---------- Login gate ---------- */
+  .gate{max-width:360px; margin:12vh auto 0; text-align:center; padding:36px 32px; background:var(--panel); border-radius:20px; box-shadow:var(--shadow-md); border:1px solid var(--line);}
+  .gate-mark{width:48px; height:48px; border-radius:13px; background:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 18px; color:#fff; font-weight:800; font-size:1.1rem;}
   .gate input{
-    width:100%; padding:12px 14px; border-radius:8px; border:1px solid var(--line);
-    background:#0d0e0c; color:var(--paper); font-size:1rem; margin:14px 0;
+    width:100%; padding:13px 14px; border-radius:10px; border:1px solid var(--line);
+    background:var(--panel-2); color:var(--ink); font-size:0.95rem; margin:8px 0; font-family:inherit;
   }
+  .gate input:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-tint);}
   .gate button, .save-bar button, .add-size-form button{
     background:var(--accent); color:#fff; border:none; border-radius:999px;
-    padding:10px 20px; font-weight:600; cursor:pointer; font-size:0.85rem;
+    padding:11px 22px; font-weight:600; cursor:pointer; font-size:0.88rem; font-family:inherit;
+    transition:background .15s ease, transform .1s ease;
   }
-  .gate .msg, .save-bar .msg{color:var(--accent); font-size:0.85rem; min-height:18px; margin-top:8px;}
+  .gate button{width:100%; margin-top:10px; padding:13px;}
+  .gate button:hover, .save-bar button:hover, .add-size-form button:hover{background:var(--accent-dark);}
+  .gate .msg, .save-bar .msg{color:var(--accent); font-size:0.84rem; min-height:18px; margin-top:10px;}
 
+  /* ---------- Layout ---------- */
   #panel{display:none;}
-  .app-layout{display:flex; align-items:flex-start; max-width:1180px; margin:0 auto;}
+  .app-layout{display:flex; align-items:flex-start; min-height:100vh;}
 
   .sidebar{
-    width:220px; flex-shrink:0; position:sticky; top:0;
-    max-height:100vh; overflow-y:auto;
-    padding:24px 12px 100px; border-right:1px solid #2a2a26;
+    width:248px; flex-shrink:0; position:sticky; top:0;
+    height:100vh; overflow-y:auto;
+    padding:18px 12px 24px; background:var(--panel-2); border-right:1px solid var(--line);
   }
-  .sidebar-brand{font-weight:700; font-size:1rem; padding:0 10px 18px;}
+  .sidebar-brand{font-weight:800; font-size:1.02rem; padding:8px 12px 20px; letter-spacing:-0.01em;}
   .sidebar-brand span{color:var(--accent);}
-  .sidebar-title{color:#6b6d66; font-size:0.66rem; text-transform:uppercase; font-weight:700; letter-spacing:0.05em; margin:18px 0 8px; padding:0 10px;}
+  .sidebar-title{color:var(--faint); font-size:0.68rem; text-transform:uppercase; font-weight:700; letter-spacing:0.06em; margin:18px 0 6px; padding:0 12px;}
   .sidebar-title:first-of-type{margin-top:0;}
   .nav-item{
-    display:block; width:100%; text-align:left; background:none; border:none; color:var(--paper);
-    padding:9px 10px; border-radius:8px; font-size:0.84rem; cursor:pointer; margin-bottom:2px;
+    display:flex; align-items:center; gap:10px; width:100%; text-align:left; background:none; border:none; color:var(--ink);
+    padding:9px 12px; border-radius:9px; font-size:0.87rem; font-weight:500; cursor:pointer; margin-bottom:2px;
+    font-family:inherit;
   }
-  .nav-item:hover{background:#222220;}
-  .nav-item.active{background:var(--accent); color:#fff; font-weight:600;}
-  .nav-sep{border:none; border-top:1px solid #2a2a26; margin:16px 10px;}
+  .nav-item svg{width:17px; height:17px; flex-shrink:0; color:var(--steel); stroke-width:1.8;}
+  .nav-item:hover{background:rgba(0,0,0,.035);}
+  .nav-item.active{background:var(--accent-tint); color:var(--accent-dark); font-weight:600;}
+  .nav-item.active svg{color:var(--accent);}
+  .nav-badge{margin-left:auto; background:var(--accent); color:#fff; font-size:0.66rem; font-weight:700; border-radius:999px; padding:1px 7px; flex-shrink:0;}
+  .nav-sep{border:none; border-top:1px solid var(--line); margin:16px 10px;}
 
-  .content{flex:1; min-width:0; padding:24px 28px 110px;}
+  .content{flex:1; min-width:0; padding:32px 36px 110px; max-width:1100px;}
   .content-section{display:none;}
   .content-section.active{display:block;}
 
   .cat-search{
-    width:100%; max-width:380px; padding:10px 14px; border-radius:8px; border:1px solid #333;
-    background:#0d0e0c; color:var(--paper); font-size:0.88rem; margin:4px 0 18px;
+    width:100%; max-width:380px; padding:11px 14px; border-radius:10px; border:1px solid var(--line);
+    background:var(--panel); color:var(--ink); font-size:0.88rem; margin:4px 0 18px; font-family:inherit;
   }
-  .cat-search:focus{outline:none; border-color:var(--accent);}
-  .cat-count{color:#6b6d66; font-size:0.78rem; margin-bottom:14px;}
+  .cat-search:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-tint);}
+  .cat-count{color:var(--faint); font-size:0.78rem; margin-bottom:14px;}
 
-  .accordion-item{border:1px solid #2a2a26; border-radius:10px; margin-bottom:10px; overflow:hidden; background:#121210;}
+  /* ---------- Cards / KPIs ---------- */
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow);}
+  .kpi-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:14px; margin-bottom:28px;}
+  .kpi-card{padding:18px 20px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow);}
+  .kpi-label{color:var(--steel); font-size:0.76rem; font-weight:600; text-transform:uppercase; letter-spacing:0.03em; margin-bottom:8px;}
+  .kpi-value{font-size:1.9rem; font-weight:700; letter-spacing:-0.02em; line-height:1.1;}
+  .kpi-value.accent{color:var(--accent);}
+  .kpi-sub{color:var(--faint); font-size:0.78rem; margin-top:4px;}
+
+  .dash-grid{display:grid; grid-template-columns:1.3fr 1fr; gap:20px; align-items:start;}
+  @media (max-width:980px){ .dash-grid{grid-template-columns:1fr;} }
+  .panel-head{display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--line-2);}
+  .panel-head h3{font-size:0.95rem;}
+  .panel-body{padding:6px 20px 16px;}
+  .mini-row{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 0; border-bottom:1px solid var(--line-2); font-size:0.85rem;}
+  .mini-row:last-child{border-bottom:none;}
+  .mini-row .mr-name{font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .mini-row .mr-sub{color:var(--faint); font-size:0.76rem; margin-top:2px;}
+  .mini-row .mr-val{font-weight:700; white-space:nowrap; flex-shrink:0;}
+  .empty-row{color:var(--faint); font-size:0.85rem; padding:14px 0;}
+
+  .link-btn{background:none; border:none; color:var(--accent); font-size:0.78rem; font-weight:600; cursor:pointer; font-family:inherit; padding:4px 0;}
+  .link-btn:hover{text-decoration:underline;}
+
+  /* ---------- Accordion (stock) ---------- */
+  .accordion-item{border:1px solid var(--line); border-radius:12px; margin-bottom:10px; overflow:hidden; background:var(--panel);}
   .accordion-item summary{
-    padding:13px 16px; cursor:pointer; font-size:0.88rem; font-weight:600; list-style:none;
+    padding:14px 16px; cursor:pointer; font-size:0.9rem; font-weight:600; list-style:none;
     display:flex; justify-content:space-between; align-items:center; gap:10px;
   }
   .accordion-item summary::-webkit-details-marker{display:none;}
-  .accordion-item summary .chev{color:#6b6d66; font-size:0.75rem; transition:transform .15s; flex-shrink:0;}
+  .accordion-item summary .chev{color:var(--faint); font-size:0.75rem; transition:transform .15s; flex-shrink:0;}
   .accordion-item[open] summary .chev{transform:rotate(90deg);}
   .accordion-item summary .sname{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-  .accordion-body{padding:4px 16px 16px; border-top:1px solid #2a2a26;}
+  .accordion-body{padding:4px 16px 16px; border-top:1px solid var(--line-2);}
 
   .bike-group-head{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:12px;}
   .add-size-form{display:flex; gap:8px; align-items:center;}
   .add-size-form input{
-    width:70px; padding:8px 10px; border-radius:6px; border:1px solid #333;
-    background:#0d0e0c; color:var(--paper); font-size:0.85rem;
+    width:70px; padding:8px 10px; border-radius:8px; border:1px solid var(--line);
+    background:var(--panel-2); color:var(--ink); font-size:0.85rem; font-family:inherit;
   }
   .extra-sizes{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
   .extra-size-chip{
     display:flex; align-items:center; gap:6px;
-    background:#262620; border-radius:999px; padding:5px 6px 5px 12px; font-size:0.78rem;
+    background:var(--panel-2); border:1px solid var(--line); border-radius:999px; padding:5px 6px 5px 12px; font-size:0.78rem;
   }
   .extra-size-chip button{
-    background:none; border:none; color:#9a9c94; cursor:pointer; font-size:0.9rem;
+    background:none; border:none; color:var(--faint); cursor:pointer; font-size:0.9rem;
     width:20px; height:20px; border-radius:999px; line-height:1;
   }
-  .extra-size-chip button:hover{background:#3a3a33; color:var(--paper);}
+  .extra-size-chip button:hover{background:var(--line); color:var(--ink);}
 
   table{width:100%; border-collapse:collapse; margin-top:10px;}
-  th, td{text-align:left; padding:9px 8px; border-bottom:1px solid #26261f;}
-  th{color:#9a9c94; font-size:0.7rem; text-transform:uppercase; font-weight:600;}
+  th, td{text-align:left; padding:10px 8px; border-bottom:1px solid var(--line-2);}
+  th{color:var(--steel); font-size:0.7rem; text-transform:uppercase; font-weight:700; letter-spacing:0.03em;}
   td.name{font-size:0.86rem;}
+  tr:hover td{background:rgba(0,0,0,.015);}
   td input{
-    width:80px; padding:8px 10px; border-radius:6px; border:1px solid #333;
-    background:#0d0e0c; color:var(--paper); font-size:0.9rem;
+    width:80px; padding:8px 10px; border-radius:8px; border:1px solid var(--line);
+    background:var(--panel-2); color:var(--ink); font-size:0.9rem; font-family:inherit;
   }
-  .hint{color:#9a9c94; font-size:0.78rem; margin-top:4px;}
-  .loading{color:#9a9c94; padding:40px 0; text-align:center;}
+  td input:focus{outline:none; border-color:var(--accent);}
+  .hint{color:var(--steel); font-size:0.82rem; margin-top:4px; line-height:1.5;}
+  .loading{color:var(--steel); padding:40px 0; text-align:center; font-size:0.9rem;}
 
-  .maint-box{border:1px solid #333; border-radius:12px; padding:18px 20px; margin-bottom:10px; max-width:560px;}
+  /* ---------- Stock sub-tabs ---------- */
+  .stock-tabs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;}
+  .stock-tab{
+    background:var(--panel); border:1px solid var(--line); border-radius:999px; padding:8px 16px;
+    font-size:0.82rem; font-weight:600; cursor:pointer; color:var(--steel); font-family:inherit;
+    display:flex; align-items:center; gap:6px;
+  }
+  .stock-tab:hover{background:var(--panel-2);}
+  .stock-tab.active{background:var(--ink); color:#fff; border-color:var(--ink);}
+  .stock-tab .stb{background:var(--amber-tint); color:var(--amber); border-radius:999px; padding:1px 7px; font-size:0.7rem; font-weight:700;}
+  .stock-tab.active .stb{background:rgba(255,255,255,.25); color:#fff;}
+  .stock-panel{display:none;}
+  .stock-panel.active{display:block;}
+
+  /* ---------- Maintenance ---------- */
+  .maint-box{border:1px solid var(--line); border-radius:var(--radius); padding:20px 22px; margin-bottom:12px; max-width:600px; background:var(--panel); box-shadow:var(--shadow);}
   .maint-row{display:flex; align-items:center; justify-content:space-between; gap:16px;}
   .maint-row strong{font-size:0.95rem;}
-  .switch{position:relative; display:inline-block; width:44px; height:26px; flex-shrink:0;}
+  .switch{position:relative; display:inline-block; width:46px; height:27px; flex-shrink:0;}
   .switch input{opacity:0; width:0; height:0;}
-  .switch .slider{position:absolute; inset:0; background:#333; border-radius:999px; cursor:pointer; transition:background .15s;}
-  .switch .slider::before{content:''; position:absolute; width:20px; height:20px; left:3px; top:3px; background:#fff; border-radius:999px; transition:transform .15s;}
+  .switch .slider{position:absolute; inset:0; background:#d1d1d6; border-radius:999px; cursor:pointer; transition:background .15s;}
+  .switch .slider::before{content:''; position:absolute; width:23px; height:23px; left:2px; top:2px; background:#fff; border-radius:999px; transition:transform .15s; box-shadow:0 1px 3px rgba(0,0,0,.25);}
   .switch input:checked + .slider{background:var(--accent);}
-  .switch input:checked + .slider::before{transform:translateX(18px);}
+  .switch input:checked + .slider::before{transform:translateX(19px);}
   .maint-box textarea{
-    width:100%; margin-top:14px; padding:10px 12px; border-radius:8px; border:1px solid #333;
-    background:#0d0e0c; color:var(--paper); font-family:'Poppins',Arial,sans-serif; font-size:0.85rem; resize:vertical;
+    width:100%; margin-top:14px; padding:11px 12px; border-radius:10px; border:1px solid var(--line);
+    background:var(--panel-2); color:var(--ink); font-family:inherit; font-size:0.87rem; resize:vertical;
   }
+  .maint-box textarea:focus{outline:none; border-color:var(--accent);}
   .maint-box .save-bar{position:static; border-top:none; padding:12px 0 0; margin-top:10px; display:flex; align-items:center; gap:16px;}
 
   .save-bar-fixed{
     position:fixed; left:0; right:0; bottom:0; z-index:80;
-    background:var(--ink); border-top:1px solid #2a2a26; padding:14px 28px;
+    background:rgba(255,255,255,.92); backdrop-filter:none; border-top:1px solid var(--line); padding:14px 36px;
     display:none; align-items:center; gap:16px;
   }
   .save-bar-fixed.show{display:flex;}
@@ -124,49 +191,74 @@
   .sheet-table{min-width:900px; font-size:0.78rem;}
   .sheet-table th, .sheet-table td{white-space:nowrap; padding:7px 10px;}
 
-  .order-card{border:1px solid #2a2a26; border-radius:10px; padding:16px 18px; margin-bottom:12px; background:#121210;}
+  /* ---------- Orders / security cards ---------- */
+  .order-card{border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin-bottom:12px; background:var(--panel); box-shadow:var(--shadow);}
   .order-card-head{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;}
   .order-card-head strong{font-size:0.95rem;}
-  .order-status{font-size:0.66rem; text-transform:uppercase; font-weight:700; padding:3px 10px; border-radius:999px; letter-spacing:0.03em; white-space:nowrap;}
-  .order-status.pending, .order-status.in_process, .order-status.pendiente_transferencia{background:#3a3420; color:#e0b84a;}
-  .order-status.approved, .order-status.pagado{background:#1f3a24; color:#5fd37a;}
-  .order-status.cancelada{background:#3a2020; color:#e08080;}
+  .order-status{font-size:0.66rem; text-transform:uppercase; font-weight:700; padding:4px 11px; border-radius:999px; letter-spacing:0.03em; white-space:nowrap;}
+  .order-status.pending, .order-status.in_process, .order-status.pendiente_transferencia{background:var(--amber-tint); color:var(--amber);}
+  .order-status.approved, .order-status.pagado{background:var(--green-tint); color:var(--green);}
+  .order-status.cancelada{background:var(--red-tint); color:var(--red);}
   .order-action-row{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;}
-  .order-action-row button{border:none; border-radius:999px; padding:8px 16px; font-size:0.78rem; font-weight:600; cursor:pointer;}
-  .order-action-row .confirm{background:#1f3a24; color:#5fd37a;}
-  .order-action-row .cancel{background:transparent; color:#e08080; border:1px solid #5a2a2a;}
+  .order-action-row button{border:none; border-radius:999px; padding:9px 18px; font-size:0.78rem; font-weight:600; cursor:pointer; font-family:inherit;}
+  .order-action-row .confirm{background:var(--green-tint); color:var(--green);}
+  .order-action-row .cancel{background:transparent; color:var(--red); border:1px solid #f0c9c9;}
   .order-action-row button:disabled{opacity:0.5; cursor:default;}
-  .order-expired{color:#e08080; font-size:0.78rem; margin-top:8px;}
-  .order-status.rejected, .order-status.cancelled, .order-status.refunded, .order-status.charged_back{background:#3a2020; color:#e08080;}
-  .order-status.warn{background:#3a3420; color:#e0b84a;}
-  .order-status.danger{background:#3a2020; color:#e08080;}
-  .order-meta{color:#9a9c94; font-size:0.74rem; margin-top:3px;}
+  .order-expired{color:var(--red); font-size:0.78rem; margin-top:8px;}
+  .order-status.rejected, .order-status.cancelled, .order-status.refunded, .order-status.charged_back{background:var(--red-tint); color:var(--red);}
+  .order-status.warn{background:var(--amber-tint); color:var(--amber);}
+  .order-status.danger{background:var(--red-tint); color:var(--red);}
+  .order-meta{color:var(--faint); font-size:0.74rem; margin-top:3px;}
   .order-grid{display:grid; grid-template-columns:1fr 1fr; gap:3px 20px; margin-top:12px; font-size:0.82rem;}
-  .order-grid div b{color:#9a9c94; font-weight:600; margin-right:4px;}
-  .order-items{margin-top:10px; padding-top:10px; border-top:1px dashed #2a2a26; font-size:0.82rem;}
+  .order-grid div b{color:var(--steel); font-weight:600; margin-right:4px;}
+  .order-items{margin-top:10px; padding-top:10px; border-top:1px dashed var(--line); font-size:0.82rem;}
   .order-items div{padding:2px 0;}
   .order-total{margin-top:8px; font-weight:700; font-size:0.92rem;}
-  .order-notes{margin-top:8px; font-size:0.8rem; color:#c7c9c1; background:#0d0e0c; border-radius:8px; padding:8px 10px;}
+  .order-notes{margin-top:8px; font-size:0.8rem; color:var(--steel); background:var(--panel-2); border-radius:8px; padding:9px 11px;}
   .order-wa-btn{
-    display:inline-flex; align-items:center; gap:6px; margin-top:12px; background:#1f3a24; color:#5fd37a;
-    border-radius:999px; padding:7px 16px; font-size:0.78rem; text-decoration:none; font-weight:600;
+    display:inline-flex; align-items:center; gap:6px; margin-top:12px; background:var(--green-tint); color:var(--green);
+    border-radius:999px; padding:8px 18px; font-size:0.78rem; text-decoration:none; font-weight:600;
   }
-  @media (max-width:600px){
-    .order-grid{grid-template-columns:1fr;}
+  @media (max-width:600px){ .order-grid{grid-template-columns:1fr;} }
+
+  /* ---------- Empty-state (Instagram / Analytics) ---------- */
+  .empty-state{
+    border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); box-shadow:var(--shadow);
+    padding:48px 36px; text-align:center; max-width:560px;
   }
+  .empty-state .es-icon{
+    width:56px; height:56px; border-radius:16px; background:var(--panel-2); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 18px; color:var(--steel);
+  }
+  .empty-state .es-icon svg{width:26px; height:26px;}
+  .empty-state h3{font-size:1.1rem; margin-bottom:8px;}
+  .empty-state p{color:var(--steel); font-size:0.88rem; line-height:1.6; margin:0 0 18px;}
+  .setup-steps{text-align:left; list-style:none; margin:0 0 18px; padding:0; display:flex; flex-direction:column; gap:10px;}
+  .setup-steps li{display:flex; gap:10px; font-size:0.85rem; color:var(--ink); align-items:flex-start;}
+  .setup-steps .step-n{
+    width:20px; height:20px; border-radius:999px; background:var(--panel-2); border:1px solid var(--line);
+    color:var(--steel); font-size:0.7rem; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;
+  }
+  .badge-soon{display:inline-block; background:var(--amber-tint); color:var(--amber); font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.03em; padding:3px 10px; border-radius:999px; margin-bottom:14px;}
+
+  /* ---------- Clients table ---------- */
+  .client-row-name{font-weight:600;}
+  .client-row-sub{color:var(--faint); font-size:0.76rem; margin-top:2px;}
 
   @media (max-width:860px){
     .app-layout{flex-direction:column;}
-    .sidebar{position:static; width:100%; max-height:none; border-right:none; border-bottom:1px solid #2a2a26; padding:16px 16px 10px;}
-    .content{padding:20px 16px 110px;}
+    .sidebar{position:static; width:100%; height:auto; max-height:none; border-right:none; border-bottom:1px solid var(--line); padding:16px 16px 10px;}
+    .content{padding:22px 18px 110px; max-width:100%; overflow-x:hidden;}
+    .save-bar-fixed{padding:14px 18px;}
   }
 </style>
 </head>
 <body>
 
 <div class="gate" id="gate">
+  <div class="gate-mark">M</div>
   <h1>Admin</h1>
-  <div class="sub">mendezrace.bike</div>
+  <div class="sub" style="margin-bottom:4px;">mendezrace.bike</div>
   <input type="password" id="pwInput" placeholder="Contraseña">
   <input type="text" id="totpInput" placeholder="Código de 6 dígitos (opcional por ahora)" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="margin-top:0;">
   <button type="button" onclick="login()">Entrar</button>
@@ -176,20 +268,88 @@
 <div id="panel">
   <div class="app-layout">
     <nav class="sidebar" id="sidebar">
-      <div class="sidebar-brand">mendez<span>race</span> admin</div>
+      <div class="sidebar-brand">mendez<span>race</span> crm</div>
+
       <div class="sidebar-title">General</div>
-      <button type="button" class="nav-item" data-section="maint" onclick="showSection('maint')">Estado de la tienda</button>
-      <button type="button" class="nav-item" data-section="orders" onclick="showSection('orders')">Pedidos</button>
-      <button type="button" class="nav-item" data-section="security" onclick="showSection('security')">Seguridad</button>
-      <button type="button" class="nav-item" data-section="lowstock" onclick="showSection('lowstock')">Stock bajo <span id="lowStockCount"></span></button>
-      <div class="sidebar-title">Categorías</div>
-      <div id="categoryNavWrap"></div>
+      <button type="button" class="nav-item" data-section="dashboard" onclick="showSection('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Resumen
+      </button>
+      <button type="button" class="nav-item" data-section="orders" onclick="showSection('orders')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>
+        Pedidos
+      </button>
+      <button type="button" class="nav-item" data-section="clients" onclick="showSection('clients')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c1.5-4 4.2-6 7-6s5.5 2 7 6"/></svg>
+        Clientes
+      </button>
+      <button type="button" class="nav-item" data-section="security" onclick="showSection('security')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6l7-3z"/></svg>
+        Seguridad
+      </button>
+      <button type="button" class="nav-item" data-section="maint" onclick="showSection('maint')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9l1-4h14l1 4"/><path d="M4 9a2 2 0 0 0 4 0 2 2 0 0 0 4 0 2 2 0 0 0 4 0 2 2 0 0 0 4 0"/><path d="M5 9v10h14V9"/></svg>
+        Estado de la tienda
+      </button>
+
+      <div class="sidebar-title">Catálogo</div>
+      <button type="button" class="nav-item" data-section="stock" onclick="showSection('stock')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><path d="M4 7.5l8 4.5 8-4.5"/><path d="M12 12v9"/></svg>
+        Stock <span class="nav-badge" id="lowStockBadge" style="display:none;"></span>
+      </button>
+
+      <div class="sidebar-title">Conectado</div>
+      <button type="button" class="nav-item" data-section="messages" onclick="showSection('messages')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5z"/></svg>
+        Mensajes
+      </button>
+      <button type="button" class="nav-item" data-section="analytics" onclick="showSection('analytics')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M11 20V4"/><path d="M18 20v-7"/></svg>
+        Analítica
+      </button>
+
       <hr class="nav-sep">
-      <button type="button" class="nav-item" data-section="sheet" onclick="showSection('sheet')">Planilla de cálculo</button>
+      <button type="button" class="nav-item" data-section="sheet" onclick="showSection('sheet')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M9 9v11"/></svg>
+        Planilla de cálculo
+      </button>
     </nav>
 
     <main class="content">
       <div class="loading" id="loadingMsg">Cargando catálogo...</div>
+
+      <section class="content-section" data-section="dashboard" id="section-dashboard">
+        <h1>Resumen</h1>
+        <div class="sub">Todo lo importante de la tienda, de un vistazo.</div>
+        <div id="dashboardWrap"></div>
+      </section>
+
+      <section class="content-section" data-section="orders" id="section-orders">
+        <h1>Pedidos</h1>
+        <div class="sub">Pedidos de la web. Los pagados con tarjeta llegan solos por Mercado Pago. Las transferencias quedan pendientes hasta que las confirmes con "Marcar como pagado". Los pedidos por "link de pago" te llegan directo por WhatsApp y no quedan guardados acá.</div>
+        <input type="search" class="cat-search" id="ordersSearch" placeholder="Buscar por nombre, teléfono, email, DNI..." oninput="filterOrders(this.value)">
+        <div class="loading" id="ordersLoading">Cargando pedidos...</div>
+        <div class="hint" id="ordersEmptyMsg" style="display:none;">Todavía no hay pedidos.</div>
+        <div id="ordersWrap" style="display:none;"></div>
+      </section>
+
+      <section class="content-section" data-section="clients" id="section-clients">
+        <h1>Clientes</h1>
+        <div class="sub">Se arma solo a partir de los pedidos: cada comprador único, cuánto gastó y cuándo fue su último pedido. No hace falta cargar nada acá.</div>
+        <input type="search" class="cat-search" id="clientsSearch" placeholder="Buscar por nombre, teléfono o email..." oninput="filterClients(this.value)">
+        <div class="loading" id="clientsLoading">Cargando clientes...</div>
+        <div class="hint" id="clientsEmptyMsg" style="display:none;">Todavía no hay clientes (se arman con el primer pedido).</div>
+        <div id="clientsWrap" style="display:none;"></div>
+      </section>
+
+      <section class="content-section" data-section="security" id="section-security">
+        <h1>Seguridad</h1>
+        <div class="sub">Registro de intentos de login fallidos al admin, bloqueos por fuerza bruta, y abuso detectado en el checkout. Se guarda automáticamente, no hace falta cargar nada acá.</div>
+        <input type="search" class="cat-search" id="securitySearch" placeholder="Buscar por IP o tipo de evento..." oninput="filterSecurityEvents(this.value)">
+        <div class="loading" id="securityLoading">Cargando eventos...</div>
+        <div class="hint" id="securityEmptyMsg" style="display:none;">Sin eventos de seguridad registrados — buena señal.</div>
+        <div id="securityWrap" style="display:none;"></div>
+      </section>
 
       <section class="content-section" data-section="maint" id="section-maint">
         <h1>Estado de la tienda</h1>
@@ -208,7 +368,7 @@
             <div class="msg" id="maintMsg"></div>
           </div>
 
-          <div class="maint-row" style="margin-top:18px; padding-top:16px; border-top:1px solid #333;">
+          <div class="maint-row" style="margin-top:18px; padding-top:16px; border-top:1px solid var(--line);">
             <strong>Ver la web normal en este navegador</strong>
             <label class="switch">
               <input type="checkbox" id="previewToggle" onchange="togglePreview()">
@@ -219,28 +379,40 @@
         </div>
       </section>
 
-      <section class="content-section" data-section="orders" id="section-orders">
-        <h1>Pedidos</h1>
-        <div class="sub">Pedidos de la web. Los pagados con tarjeta llegan solos por Mercado Pago. Las transferencias quedan pendientes hasta que las confirmes con "Marcar como pagado". Los pedidos por "link de pago" te llegan directo por WhatsApp y no quedan guardados acá.</div>
-        <input type="search" class="cat-search" id="ordersSearch" placeholder="Buscar por nombre, teléfono, email, DNI..." oninput="filterOrders(this.value)">
-        <div class="loading" id="ordersLoading">Cargando pedidos...</div>
-        <div class="hint" id="ordersEmptyMsg" style="display:none;">Todavía no hay pedidos.</div>
-        <div id="ordersWrap" style="display:none;"></div>
+      <section class="content-section" data-section="stock" id="section-stock">
+        <h1>Stock</h1>
+        <div class="sub">Todas las categorías de productos, en un solo lugar. Elegí una para ver y editar las cantidades.</div>
+        <div class="stock-tabs" id="stockTabs"></div>
+        <div id="stockPanelsWrap"></div>
       </section>
 
-      <section class="content-section" data-section="security" id="section-security">
-        <h1>Seguridad</h1>
-        <div class="sub">Registro de intentos de login fallidos al admin, bloqueos por fuerza bruta, y abuso detectado en el checkout. Se guarda automáticamente, no hace falta cargar nada acá.</div>
-        <input type="search" class="cat-search" id="securitySearch" placeholder="Buscar por IP o tipo de evento..." oninput="filterSecurityEvents(this.value)">
-        <div class="loading" id="securityLoading">Cargando eventos...</div>
-        <div class="hint" id="securityEmptyMsg" style="display:none;">Sin eventos de seguridad registrados — buena señal.</div>
-        <div id="securityWrap" style="display:none;"></div>
+      <section class="content-section" data-section="messages" id="section-messages">
+        <h1>Mensajes</h1>
+        <div class="sub">Los DMs de Instagram, directo acá para responder sin salir del CRM.</div>
+        <div class="empty-state">
+          <span class="badge-soon">Todavía no conectado</span>
+          <div class="es-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="3.6"/><circle cx="17" cy="7" r="1"/></svg>
+          </div>
+          <h3>Conectá tu Instagram</h3>
+          <p>Para que los mensajes de Instagram lleguen acá y los puedas contestar directo, Meta pide tres cosas de tu lado primero:</p>
+          <ol class="setup-steps">
+            <li><span class="step-n">1</span>Una cuenta de Instagram <strong>Business</strong> (si la tuya es personal, se cambia gratis desde la app).</li>
+            <li><span class="step-n">2</span>Esa cuenta vinculada a una <strong>página de Facebook</strong> de Mendezrace.</li>
+            <li><span class="step-n">3</span>Una app creada en <strong>Meta for Developers</strong>, con permisos de mensajería aprobados.</li>
+          </ol>
+          <div class="hint">Cuando tengas los primeros dos pasos listos, avisame y te guío con el tercero — ese lo armamos juntos. En cuanto esté, esta sección se activa sola y vas a ver acá cada conversación.</div>
+        </div>
       </section>
 
-      <section class="content-section" data-section="lowstock" id="section-lowstock">
-        <h1>Stock bajo</h1>
-        <div class="sub">Variantes con stock cargado de 2 unidades o menos (incluye las que están en 0). Las variantes sin control de stock no aparecen acá.</div>
-        <div id="lowStockWrap"></div>
+      <section class="content-section" data-section="analytics" id="section-analytics">
+        <h1>Analítica</h1>
+        <div class="sub">Lo que ya sabemos con certeza, armado con los pedidos reales.</div>
+        <div id="analyticsWrap"></div>
+        <div class="empty-state" style="margin-top:24px; text-align:left; padding:28px 32px;">
+          <h3 style="margin-bottom:8px;">Visitas y tráfico de la web</h3>
+          <p style="margin-bottom:0;">Todavía no hay una herramienta de analítica de visitas instalada en mendezrace.bike (ni Google Analytics ni nada propio). Si querés, puedo conectar Google Analytics si ya tenés cuenta, o armar un contador propio de visitas — avisame cuál preferís y lo sumamos.</p>
+        </div>
       </section>
 
       <div id="categorySectionsWrap"></div>
@@ -274,6 +446,7 @@ var ordersData = [];     // pedidos pagados por Mercado Pago
 var ordersLoaded = false;
 var securityEvents = [];
 var securityLoaded = false;
+var currentStockTab = 'bikes';
 
 var CATEGORY_DEFS = [
   { key: 'bikes', label: 'Bicis Twitter', isBikes: true },
@@ -369,11 +542,13 @@ function showSection(key){
     el.classList.toggle('active', el.dataset.section === key);
   });
   var saveBar = document.getElementById('saveBar');
-  saveBar.classList.toggle('show', key !== 'sheet' && key !== 'orders' && key !== 'security');
+  saveBar.classList.toggle('show', key === 'stock' && currentStockTab !== 'bajo');
   if(key === 'sheet' && !sheetRows.length) loadSheet();
   if(key === 'orders' && !ordersLoaded) loadOrders();
   if(key === 'security' && !securityLoaded) loadSecurityEvents();
-  if(key === 'lowstock') renderLowStock();
+  if(key === 'clients') renderClients();
+  if(key === 'dashboard') renderDashboard();
+  if(key === 'analytics') renderAnalytics();
 }
 
 var LOW_STOCK_THRESHOLD = 2;
@@ -387,18 +562,25 @@ function findProductName(baseId){
   return found || baseId;
 }
 
-function renderLowStock(){
-  var rows = Object.keys(stockConfig).map(function(id){
+function lowStockRows(){
+  return Object.keys(stockConfig).map(function(id){
     return { id: id, qty: Number(stockConfig[id]) };
   }).filter(function(r){
     return isFinite(r.qty) && r.qty <= LOW_STOCK_THRESHOLD;
   }).sort(function(a, b){ return a.qty - b.qty; });
+}
 
-  document.getElementById('lowStockCount').textContent = rows.length ? '(' + rows.length + ')' : '';
-  var wrap = document.getElementById('lowStockWrap');
+function renderLowStockPanel(){
+  var rows = lowStockRows();
+  var badge = document.getElementById('lowStockBadge');
+  if(rows.length){ badge.style.display = ''; badge.textContent = rows.length; }
+  else badge.style.display = 'none';
+
+  var wrap = document.getElementById('stockPanelBajo');
+  if(!wrap) return;
   wrap.innerHTML = '';
   if(!rows.length){
-    wrap.innerHTML = '<div class="hint">No hay variantes con stock bajo.</div>';
+    wrap.innerHTML = '<div class="hint">No hay variantes con stock bajo. 🎉</div>';
     return;
   }
   var table = document.createElement('table');
@@ -480,11 +662,13 @@ async function loadEverything(){
 
     extraCategories = parseExtraProducts(html);
 
-    buildSidebar();
-    renderAllCategorySections();
-    renderLowStock();
+    buildStockTabs();
+    renderAllStockPanels();
+    renderLowStockPanel();
     document.getElementById('loadingMsg').style.display = 'none';
-    showSection('maint');
+
+    await Promise.all([loadOrders(), loadSecurityEvents()]);
+    showSection('dashboard');
   } catch(e){
     document.getElementById('loadingMsg').textContent = 'Error inesperado: ' + e.message;
   }
@@ -520,21 +704,41 @@ function parseExtraProducts(html){
   return byCat;
 }
 
-/* ---------- Sidebar + secciones por categoría ---------- */
+/* ---------- Stock: sub-tabs dentro de UNA sola sección ---------- */
 
-function buildSidebar(){
-  var wrap = document.getElementById('categoryNavWrap');
+function buildStockTabs(){
+  var wrap = document.getElementById('stockTabs');
   wrap.innerHTML = '';
-  CATEGORY_DEFS.forEach(function(def){
+  CATEGORY_DEFS.forEach(function(def, i){
     var count = def.isBikes ? Object.keys(bikesInfo).length : (extraCategories[def.key] || []).length;
     var btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'nav-item';
-    btn.dataset.section = 'cat-' + def.key;
+    btn.className = 'stock-tab' + (i === 0 ? ' active' : '');
+    btn.dataset.tab = def.key;
     btn.textContent = def.label + ' (' + count + ')';
-    btn.onclick = function(){ showSection('cat-' + def.key); };
+    btn.onclick = function(){ showStockTab(def.key); };
     wrap.appendChild(btn);
   });
+  var bajoBtn = document.createElement('button');
+  bajoBtn.type = 'button';
+  bajoBtn.className = 'stock-tab';
+  bajoBtn.dataset.tab = 'bajo';
+  bajoBtn.innerHTML = 'Stock bajo <span class="stb" id="stockBajoCount"></span>';
+  bajoBtn.onclick = function(){ showStockTab('bajo'); };
+  wrap.appendChild(bajoBtn);
+}
+
+function showStockTab(key){
+  currentStockTab = key;
+  document.querySelectorAll('.stock-tab').forEach(function(el){
+    el.classList.toggle('active', el.dataset.tab === key);
+  });
+  document.querySelectorAll('.stock-panel').forEach(function(el){
+    el.classList.toggle('active', el.dataset.tab === key);
+  });
+  var saveBar = document.getElementById('saveBar');
+  saveBar.classList.toggle('show', key !== 'bajo');
+  if(key === 'bajo') renderLowStockPanel();
 }
 
 function allSizesFor(key){
@@ -543,24 +747,20 @@ function allSizesFor(key){
   return base.length ? base : [null];
 }
 
-function renderAllCategorySections(){
-  var wrap = document.getElementById('categorySectionsWrap');
+function renderAllStockPanels(){
+  var wrap = document.getElementById('stockPanelsWrap');
   wrap.innerHTML = '';
-  CATEGORY_DEFS.forEach(function(def){
-    var section = document.createElement('section');
-    section.className = 'content-section';
-    section.dataset.section = 'cat-' + def.key;
-
-    var title = document.createElement('h1');
-    title.textContent = def.label;
-    section.appendChild(title);
+  CATEGORY_DEFS.forEach(function(def, i){
+    var panel = document.createElement('div');
+    panel.className = 'stock-panel' + (i === 0 ? ' active' : '');
+    panel.dataset.tab = def.key;
 
     var search = document.createElement('input');
     search.type = 'search';
     search.className = 'cat-search';
     search.placeholder = 'Buscar producto en ' + def.label + '...';
-    search.oninput = (function(secEl){ return function(){ filterCategory(secEl, this.value); }; })(section);
-    section.appendChild(search);
+    search.oninput = (function(secEl){ return function(){ filterCategory(secEl, this.value); }; })(panel);
+    panel.appendChild(search);
 
     var list = document.createElement('div');
     list.className = 'accordion-list';
@@ -580,9 +780,15 @@ function renderAllCategorySections(){
         list.appendChild(empty);
       }
     }
-    section.appendChild(list);
-    wrap.appendChild(section);
+    panel.appendChild(list);
+    wrap.appendChild(panel);
   });
+
+  var bajoPanel = document.createElement('div');
+  bajoPanel.className = 'stock-panel';
+  bajoPanel.dataset.tab = 'bajo';
+  bajoPanel.innerHTML = '<div class="hint" style="margin-bottom:14px;">Variantes con stock cargado de ' + LOW_STOCK_THRESHOLD + ' unidades o menos (incluye las que están en 0). Las variantes sin control de stock no aparecen acá.</div><div id="stockPanelBajo"></div>';
+  wrap.appendChild(bajoPanel);
 }
 
 function buildBikeAccordion(key){
@@ -681,11 +887,8 @@ function buildProductAccordion(p){
 function filterCategory(sectionEl, query){
   var q = query.trim().toLowerCase();
   var items = sectionEl.querySelectorAll('.accordion-item');
-  var visible = 0;
   items.forEach(function(it){
-    var match = !q || it.dataset.name.indexOf(q) !== -1;
-    it.style.display = match ? '' : 'none';
-    if(match) visible++;
+    it.style.display = (!q || it.dataset.name.indexOf(q) !== -1) ? '' : 'none';
   });
 }
 
@@ -722,35 +925,38 @@ async function removeSize(key, size){
 }
 
 function refreshBikeSection(){
-  var section = document.querySelector('.content-section[data-section="cat-bikes"]');
-  var search = section.querySelector('.cat-search');
+  var panel = document.querySelector('.stock-panel[data-tab="bikes"]');
+  var search = panel.querySelector('.cat-search');
   var searchVal = search ? search.value : '';
-  var list = section.querySelector('.accordion-list');
+  var list = panel.querySelector('.accordion-list');
   list.innerHTML = '';
   Object.keys(bikesInfo).forEach(function(key){
     list.appendChild(buildBikeAccordion(key));
   });
-  if(searchVal) filterCategory(section, searchVal);
+  if(searchVal) filterCategory(panel, searchVal);
 }
 
 /* ---------- Guardar stock (todas las categorías juntas) ---------- */
 
 async function saveStock(){
-  var inputs = document.querySelectorAll('#categorySectionsWrap input[type="number"]');
+  var inputs = document.querySelectorAll('#stockPanelsWrap input[type="number"]');
   var updates = {};
   inputs.forEach(function(inp){
     updates[inp.dataset.id] = inp.value === '' ? null : inp.value;
   });
   var msg = document.getElementById('saveMsg');
-  msg.style.color = '#9a9c94';
+  msg.style.color = 'var(--steel)';
   msg.textContent = 'Guardando...';
   try {
     var res = await callAdminStock({ action: 'update', updates: updates });
     if(!res.ok){ throw new Error('No se pudo guardar'); }
-    msg.style.color = '#4caf50';
+    var data = await res.json().catch(function(){ return null; });
+    if(data && data.config) stockConfig = data.config;
+    msg.style.color = 'var(--green)';
     msg.textContent = 'Guardado ✓';
+    renderLowStockPanel();
   } catch(e){
-    msg.style.color = '#c1272d';
+    msg.style.color = 'var(--accent)';
     msg.textContent = 'Error al guardar, probá de nuevo.';
   }
 }
@@ -781,14 +987,14 @@ function togglePreview(){
 async function toggleMaintenance(){
   var on = document.getElementById('maintToggle').checked;
   var msg = document.getElementById('maintMsg');
-  msg.style.color = '#9a9c94';
+  msg.style.color = 'var(--steel)';
   msg.textContent = on ? 'Activando...' : 'Desactivando...';
   try {
     await callAdminSite({ action: 'set', on: on, message: document.getElementById('maintMessage').value });
-    msg.style.color = '#4caf50';
+    msg.style.color = 'var(--green)';
     msg.textContent = on ? 'Tienda en mantenimiento ✓' : 'Tienda visible de nuevo ✓';
   } catch(e){
-    msg.style.color = '#c1272d';
+    msg.style.color = 'var(--accent)';
     msg.textContent = 'No se pudo actualizar, probá de nuevo.';
     document.getElementById('maintToggle').checked = !on;
   }
@@ -797,14 +1003,14 @@ async function toggleMaintenance(){
 async function saveMaintenanceMessage(){
   var on = document.getElementById('maintToggle').checked;
   var msg = document.getElementById('maintMsg');
-  msg.style.color = '#9a9c94';
+  msg.style.color = 'var(--steel)';
   msg.textContent = 'Guardando...';
   try {
     await callAdminSite({ action: 'set', on: on, message: document.getElementById('maintMessage').value });
-    msg.style.color = '#4caf50';
+    msg.style.color = 'var(--green)';
     msg.textContent = 'Guardado ✓';
   } catch(e){
-    msg.style.color = '#c1272d';
+    msg.style.color = 'var(--accent)';
     msg.textContent = 'No se pudo guardar, probá de nuevo.';
   }
 }
@@ -823,6 +1029,8 @@ var ORDER_STATUS_LABELS = {
   refunded: 'Reembolsado',
   charged_back: 'Contracargo'
 };
+
+var PAID_STATUSES = ['approved', 'pagado'];
 
 function fmtMoneyAdmin(n){
   return '$' + Math.round(Number(n) || 0).toLocaleString('es-AR');
@@ -968,6 +1176,264 @@ async function runOrderAction(orderId, action, row){
     alert('Error de conexión, probá de nuevo.');
     Array.prototype.forEach.call(row.querySelectorAll('button'), function(b){ b.disabled = false; });
   }
+}
+
+/* ---------- Clientes (armado a partir de los pedidos) ---------- */
+
+function buildClients(){
+  var map = {};
+  ordersData.forEach(function(o){
+    var b = o.buyer || {};
+    var phoneDigits = (b.phone || '').replace(/\D/g, '');
+    var key = phoneDigits || (b.email || '').toLowerCase().trim() || (b.dni || '').trim() || (b.name || '').toLowerCase().trim();
+    if(!key) return;
+    if(!map[key]){
+      map[key] = { name: '', phone: '', email: '', dni: '', orders: 0, total: 0, lastTs: 0 };
+    }
+    var c = map[key];
+    if(b.name) c.name = b.name;
+    if(b.phone) c.phone = b.phone;
+    if(b.email) c.email = b.email;
+    if(b.dni) c.dni = b.dni;
+    c.orders += 1;
+    if(PAID_STATUSES.indexOf(o.status) !== -1) c.total += Number(o.total) || 0;
+    if((o.createdAt || 0) > c.lastTs) c.lastTs = o.createdAt;
+  });
+  return Object.keys(map).map(function(k){ return map[k]; }).sort(function(a, b){ return b.total - a.total; });
+}
+
+function renderClients(){
+  var wrap = document.getElementById('clientsWrap');
+  var loading = document.getElementById('clientsLoading');
+  var emptyMsg = document.getElementById('clientsEmptyMsg');
+  if(!ordersLoaded){
+    loading.style.display = 'block';
+    wrap.style.display = 'none';
+    emptyMsg.style.display = 'none';
+    return;
+  }
+  loading.style.display = 'none';
+  var clients = buildClients();
+  if(!clients.length){
+    emptyMsg.style.display = 'block';
+    wrap.style.display = 'none';
+    return;
+  }
+  emptyMsg.style.display = 'none';
+  wrap.style.display = 'block';
+  var table = document.createElement('table');
+  table.innerHTML = '<thead><tr><th>Cliente</th><th>Pedidos</th><th>Total gastado</th><th>Último pedido</th><th></th></tr></thead>';
+  var tbody = document.createElement('tbody');
+  clients.forEach(function(c){
+    var waDigits = (c.phone || '').replace(/\D/g, '');
+    var tr = document.createElement('tr');
+    tr.dataset.clientSearch = [c.name, c.email, c.phone, c.dni].filter(Boolean).join(' ').toLowerCase();
+    tr.innerHTML =
+      '<td class="name"><div class="client-row-name">' + escapeHtmlAdmin(c.name || 'Sin nombre') + '</div>' +
+        '<div class="client-row-sub">' + escapeHtmlAdmin([c.phone, c.email].filter(Boolean).join(' · ')) + '</div></td>' +
+      '<td>' + c.orders + '</td>' +
+      '<td>' + fmtMoneyAdmin(c.total) + '</td>' +
+      '<td>' + fmtDateAdmin(c.lastTs) + '</td>' +
+      '<td>' + (waDigits ? ('<a class="order-wa-btn" style="margin-top:0;" target="_blank" rel="noopener" href="https://wa.me/' + waDigits + '">WhatsApp</a>') : '') + '</td>';
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  var scroller = document.createElement('div');
+  scroller.style.overflowX = 'auto';
+  scroller.appendChild(table);
+  wrap.innerHTML = '';
+  wrap.appendChild(scroller);
+}
+
+function filterClients(query){
+  var q = query.trim().toLowerCase();
+  var tbody = document.querySelector('#clientsWrap tbody');
+  if(!tbody) return;
+  Array.prototype.forEach.call(tbody.children, function(tr){
+    var text = tr.dataset.clientSearch || '';
+    tr.style.display = (!q || text.indexOf(q) !== -1) ? '' : 'none';
+  });
+}
+
+/* ---------- Resumen (dashboard) ---------- */
+
+function renderDashboard(){
+  var wrap = document.getElementById('dashboardWrap');
+  if(!ordersLoaded || !securityLoaded){
+    wrap.innerHTML = '<div class="loading">Cargando...</div>';
+    return;
+  }
+  var DAY = 86400000;
+  var now = Date.now();
+  var paid = ordersData.filter(function(o){ return PAID_STATUSES.indexOf(o.status) !== -1; });
+  var last30 = paid.filter(function(o){ return now - (o.createdAt || 0) <= 30 * DAY; });
+  var salesTotal30 = last30.reduce(function(s, o){ return s + (Number(o.total) || 0); }, 0);
+  var pendingTransfers = ordersData.filter(function(o){ return o.status === 'pendiente_transferencia'; }).length;
+  var lowStock = lowStockRows().length;
+  var clients = buildClients();
+  var sec7 = securityEvents.filter(function(e){ return now - (e.ts || 0) <= 7 * DAY; }).length;
+
+  var counts = {};
+  paid.forEach(function(o){
+    (o.items || []).forEach(function(it){
+      if(!it.id) return;
+      counts[it.id] = (counts[it.id] || 0) + (Number(it.qty) || 1);
+    });
+  });
+  var topIds = Object.keys(counts).sort(function(a, b){ return counts[b] - counts[a]; }).slice(0, 5);
+
+  var recentOrders = ordersData.slice().sort(function(a, b){ return (b.createdAt||0) - (a.createdAt||0); }).slice(0, 5);
+  var recentSec = securityEvents.slice(0, 4);
+
+  var html = '';
+  html += '<div class="kpi-grid">';
+  html += kpiCard('Ventas (30 días)', fmtMoneyAdmin(salesTotal30), last30.length + ' pedido' + (last30.length === 1 ? '' : 's') + ' pagado' + (last30.length === 1 ? '' : 's'));
+  html += kpiCard('Transferencias pendientes', String(pendingTransfers), pendingTransfers ? 'Necesitan tu confirmación' : 'Todo al día', pendingTransfers > 0);
+  html += kpiCard('Stock bajo', String(lowStock), lowStock ? 'Variantes con 2 o menos' : 'Todo con stock sano', lowStock > 0);
+  html += kpiCard('Clientes', String(clients.length), 'Únicos, de todos los pedidos');
+  html += kpiCard('Alertas de seguridad (7 días)', String(sec7), sec7 ? 'Revisalas en Seguridad' : 'Sin novedades');
+  html += '</div>';
+
+  html += '<div class="dash-grid">';
+
+  html += '<div class="card">' +
+    '<div class="panel-head"><h3>Pedidos recientes</h3><button type="button" class="link-btn" onclick="showSection(\'orders\')">Ver todos</button></div>' +
+    '<div class="panel-body">';
+  if(!recentOrders.length){
+    html += '<div class="empty-row">Todavía no hay pedidos.</div>';
+  } else {
+    recentOrders.forEach(function(o){
+      var statusLabel = ORDER_STATUS_LABELS[o.status] || o.status;
+      html += '<div class="mini-row"><div style="min-width:0;"><div class="mr-name">' + escapeHtmlAdmin((o.buyer || {}).name || 'Sin nombre') + '</div>' +
+        '<div class="mr-sub">' + fmtDateAdmin(o.createdAt) + ' · <span class="order-status ' + o.status + '" style="padding:2px 8px;">' + escapeHtmlAdmin(statusLabel) + '</span></div></div>' +
+        '<div class="mr-val">' + fmtMoneyAdmin(o.total) + '</div></div>';
+    });
+  }
+  html += '</div></div>';
+
+  html += '<div class="card">' +
+    '<div class="panel-head"><h3>Más vendidos (90 días)</h3></div>' +
+    '<div class="panel-body">';
+  if(!topIds.length){
+    html += '<div class="empty-row">Todavía no hay ventas pagadas registradas.</div>';
+  } else {
+    topIds.forEach(function(id){
+      html += '<div class="mini-row"><div class="mr-name">' + escapeHtmlAdmin(findProductName(id.split('::')[0])) + '</div>' +
+        '<div class="mr-val">' + counts[id] + ' vendidos</div></div>';
+    });
+  }
+  html += '</div></div>';
+
+  html += '</div>';
+
+  html += '<div class="dash-grid" style="margin-top:20px;">';
+  html += '<div class="card">' +
+    '<div class="panel-head"><h3>Clientes top</h3><button type="button" class="link-btn" onclick="showSection(\'clients\')">Ver todos</button></div>' +
+    '<div class="panel-body">';
+  if(!clients.length){
+    html += '<div class="empty-row">Todavía no hay clientes.</div>';
+  } else {
+    clients.slice(0, 5).forEach(function(c){
+      html += '<div class="mini-row"><div class="mr-name">' + escapeHtmlAdmin(c.name || 'Sin nombre') + '</div><div class="mr-val">' + fmtMoneyAdmin(c.total) + '</div></div>';
+    });
+  }
+  html += '</div></div>';
+
+  html += '<div class="card">' +
+    '<div class="panel-head"><h3>Últimos eventos de seguridad</h3><button type="button" class="link-btn" onclick="showSection(\'security\')">Ver todos</button></div>' +
+    '<div class="panel-body">';
+  if(!recentSec.length){
+    html += '<div class="empty-row">Sin eventos — buena señal.</div>';
+  } else {
+    recentSec.forEach(function(e){
+      var label = SECURITY_EVENT_LABELS[e.type] || e.type;
+      html += '<div class="mini-row"><div class="mr-name">' + escapeHtmlAdmin(label) + '</div><div class="mr-sub">' + escapeHtmlAdmin(e.ip || '') + '</div></div>';
+    });
+  }
+  html += '</div></div>';
+  html += '</div>';
+
+  wrap.innerHTML = html;
+}
+
+function kpiCard(label, value, sub, warn){
+  return '<div class="kpi-card"><div class="kpi-label">' + escapeHtmlAdmin(label) + '</div>' +
+    '<div class="kpi-value' + (warn ? ' accent' : '') + '">' + value + '</div>' +
+    (sub ? ('<div class="kpi-sub">' + escapeHtmlAdmin(sub) + '</div>') : '') + '</div>';
+}
+
+/* ---------- Analítica (ventas reales; visitas: todavía no instalado) ---------- */
+
+function renderAnalytics(){
+  var wrap = document.getElementById('analyticsWrap');
+  if(!ordersLoaded){
+    wrap.innerHTML = '<div class="loading">Cargando...</div>';
+    return;
+  }
+  var DAY = 86400000;
+  var now = Date.now();
+  var paid = ordersData.filter(function(o){ return PAID_STATUSES.indexOf(o.status) !== -1; });
+
+  var buckets = [];
+  for(var i = 6; i >= 0; i--){
+    var start = now - i * 7 * DAY;
+    buckets.push({ start: start, end: start + 7 * DAY, total: 0, count: 0 });
+  }
+  paid.forEach(function(o){
+    buckets.forEach(function(b){
+      if((o.createdAt || 0) >= b.start - 6 * 7 * DAY && (o.createdAt || 0) < b.end && (o.createdAt || 0) >= b.start){
+        b.total += Number(o.total) || 0;
+        b.count += 1;
+      }
+    });
+  });
+  var maxTotal = Math.max.apply(null, buckets.map(function(b){ return b.total; }).concat([1]));
+
+  var counts = {};
+  paid.forEach(function(o){
+    (o.items || []).forEach(function(it){
+      if(!it.id) return;
+      if(!counts[it.id]) counts[it.id] = { qty: 0, revenue: 0 };
+      counts[it.id].qty += Number(it.qty) || 1;
+      counts[it.id].revenue += (Number(it.price) || 0) * (Number(it.qty) || 1);
+    });
+  });
+  var topByRevenue = Object.keys(counts).sort(function(a, b){ return counts[b].revenue - counts[a].revenue; }).slice(0, 8);
+
+  var avgTicket = paid.length ? (paid.reduce(function(s,o){ return s+(Number(o.total)||0); },0) / paid.length) : 0;
+  var statusCounts = {};
+  ordersData.forEach(function(o){ statusCounts[o.status] = (statusCounts[o.status]||0) + 1; });
+
+  var html = '';
+  html += '<div class="kpi-grid">';
+  html += kpiCard('Ventas totales (acumulado)', fmtMoneyAdmin(paid.reduce(function(s,o){ return s+(Number(o.total)||0); },0)), paid.length + ' pedidos pagados en total');
+  html += kpiCard('Ticket promedio', fmtMoneyAdmin(avgTicket), 'Por pedido pagado');
+  html += kpiCard('Pedidos totales', String(ordersData.length), 'Todos los estados');
+  html += '</div>';
+
+  html += '<div class="card" style="margin-bottom:20px;"><div class="panel-head"><h3>Ventas por semana (últimas 7)</h3></div><div class="panel-body" style="padding-top:14px;">';
+  html += '<div style="display:flex; align-items:flex-end; gap:10px; height:120px;">';
+  buckets.forEach(function(b){
+    var h = Math.max(4, Math.round((b.total / maxTotal) * 100));
+    html += '<div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;">' +
+      '<div title="' + fmtMoneyAdmin(b.total) + '" style="width:100%; max-width:36px; height:' + h + 'px; background:var(--accent); border-radius:5px 5px 0 0;"></div>' +
+      '<div style="font-size:0.66rem; color:var(--faint);">' + new Date(b.start).toLocaleDateString('es-AR', {day:'2-digit', month:'2-digit'}) + '</div>' +
+    '</div>';
+  });
+  html += '</div></div></div>';
+
+  html += '<div class="card"><div class="panel-head"><h3>Productos más vendidos (por ingresos)</h3></div><div class="panel-body">';
+  if(!topByRevenue.length){
+    html += '<div class="empty-row">Todavía no hay ventas pagadas.</div>';
+  } else {
+    topByRevenue.forEach(function(id){
+      html += '<div class="mini-row"><div class="mr-name">' + escapeHtmlAdmin(findProductName(id.split('::')[0])) + '<div class="mr-sub">' + counts[id].qty + ' vendidos</div></div>' +
+        '<div class="mr-val">' + fmtMoneyAdmin(counts[id].revenue) + '</div></div>';
+    });
+  }
+  html += '</div></div>';
+
+  wrap.innerHTML = html;
 }
 
 /* ---------- Seguridad ---------- */
