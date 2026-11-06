@@ -993,6 +993,8 @@
   .cat-hero-video-bg{background-image:none; background-color:#0d0e0c;}
   .cat-hero-video{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:-1;}
   #catalogo.twitter-mode .cat-hero-twitter{display:block;}
+  #catalogo.cascos-mode .cat-hero-cascos{display:block;}
+  #catalogo.tld-mode .cat-hero-tld{display:block;}
   .cat-hero-eyebrow{
     display:flex; align-items:center; gap:10px;
     font-family:'Poppins',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:0.1em;
@@ -1876,6 +1878,26 @@
       <div class="cat-hero-eyebrow"><span class="sprocket" aria-hidden="true"></span>Categoría</div>
       <h2 class="cat-hero-title">BICI<span class="out">CROSS</span></h2>
       <p class="cat-hero-sub">Bicis, cuadros y repuestos para competir.</p>
+    </div>
+  </div>
+  <div class="cat-hero cat-hero-cascos cat-hero-video-bg" id="catCascosHero">
+    <video class="cat-hero-video" autoplay muted loop playsinline disablepictureinpicture preload="auto">
+      <source src="img/tld-hero.mp4" type="video/mp4">
+    </video>
+    <div class="wrap">
+      <div class="cat-hero-eyebrow"><span class="sprocket" aria-hidden="true"></span>Categoría</div>
+      <h2 class="cat-hero-title">CASCOS</h2>
+      <p class="cat-hero-sub">Protección y diseño para cada terreno, de las mejores marcas.</p>
+    </div>
+  </div>
+  <div class="cat-hero cat-hero-tld cat-hero-video-bg" id="catTldHero">
+    <video class="cat-hero-video" autoplay muted loop playsinline disablepictureinpicture preload="auto">
+      <source src="img/tld-hero.mp4" type="video/mp4">
+    </video>
+    <div class="wrap">
+      <div class="cat-hero-eyebrow"><span class="sprocket" aria-hidden="true"></span>Categoría</div>
+      <h2 class="cat-hero-title">TROY LEE<span class="out"> DESIGNS</span></h2>
+      <p class="cat-hero-sub">Cascos y protecciones premium, distribución oficial en Argentina.</p>
     </div>
   </div>
   <div class="wrap cat-filter-wrap-outer">
@@ -3804,8 +3826,10 @@
   var catalogo = document.getElementById('catalogo');
   var catGrid = document.getElementById('categoriasPrincipales');
   if(!catalogo || !catGrid) return;
+  var HERO_MODES_HIDE_GRID = ['bicicross-mode', 'twitter-mode', 'cascos-mode', 'tld-mode'];
   function syncCatGrid(){
-    catGrid.style.display = (catalogo.classList.contains('bicicross-mode') || catalogo.classList.contains('twitter-mode')) ? 'none' : '';
+    var hide = HERO_MODES_HIDE_GRID.some(function(m){ return catalogo.classList.contains(m); });
+    catGrid.style.display = hide ? 'none' : '';
   }
   syncCatGrid();
   new MutationObserver(syncCatGrid).observe(catalogo, {attributes:true, attributeFilter:['class']});
@@ -6027,6 +6051,13 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 });
 
+var CAT_HERO_MODES = ['bicicross-mode','twitter-mode','cascos-mode','tld-mode'];
+function setCatalogHero(mode){
+  var cl = document.getElementById('catalogo').classList;
+  CAT_HERO_MODES.forEach(function(k){ cl.remove(k); });
+  if(mode) cl.add(mode);
+}
+
 function goToCategory(catKey){
   var filterMode;
   if(bicicrossBrandFilterKeys.indexOf(catKey) !== -1){
@@ -6062,7 +6093,7 @@ function goToCategory(catKey){
     var brandBadge0 = document.getElementById('catBrandBadge');
     if(brandBadge0) brandBadge0.style.display = 'none';
     document.getElementById('bicicrossSubcats').style.display = 'flex';
-    document.getElementById('catalogo').classList.add('bicicross-mode');
+    setCatalogHero('bicicross-mode');
     applyBikeFilters();
     setRoute('catalogo/bicicross');
   document.getElementById('catalogo').scrollIntoView({behavior:'smooth'});
@@ -6083,8 +6114,7 @@ function goToCategory(catKey){
     statusElTw.style.display = 'flex';
     document.getElementById('catEmptyState').style.display = visibleCountTw === 0 ? 'block' : 'none';
     document.getElementById('bicicrossSubcats').style.display = 'none';
-    document.getElementById('catalogo').classList.remove('bicicross-mode');
-    document.getElementById('catalogo').classList.add('twitter-mode');
+    setCatalogHero('twitter-mode');
     var brandBadgeTw = document.getElementById('catBrandBadge');
     if(brandBadgeTw) brandBadgeTw.style.display = 'flex';
     applyBikeFilters();
@@ -6107,8 +6137,7 @@ function goToCategory(catKey){
     statusElAll.style.display = 'flex';
     document.getElementById('catEmptyState').style.display = visibleCountAll === 0 ? 'block' : 'none';
     document.getElementById('bicicrossSubcats').style.display = 'none';
-    document.getElementById('catalogo').classList.remove('bicicross-mode');
-    document.getElementById('catalogo').classList.remove('twitter-mode');
+    setCatalogHero(null);
     var brandBadgeAll = document.getElementById('catBrandBadge');
     if(brandBadgeAll) brandBadgeAll.style.display = 'none';
     applyBikeFilters();
@@ -6117,8 +6146,9 @@ function goToCategory(catKey){
     return;
   }
   document.getElementById('bicicrossSubcats').style.display = bicicrossSubcatKeys.indexOf(catKey) !== -1 ? 'flex' : 'none';
-  document.getElementById('catalogo').classList.toggle('bicicross-mode', bicicrossSubcatKeys.indexOf(catKey) !== -1);
-  document.getElementById('catalogo').classList.remove('twitter-mode');
+  if(bicicrossSubcatKeys.indexOf(catKey) !== -1){ setCatalogHero('bicicross-mode'); }
+  else if(catKey === 'cascos'){ setCatalogHero('cascos-mode'); }
+  else { setCatalogHero(null); }
   var label = categoryLabels[catKey] || catKey;
   var cards = document.getElementById('catalogo').querySelectorAll('.cat-card');
   var visibleCount = 0;
@@ -6147,8 +6177,7 @@ function filterBicicrossBrand(subcat, brand, brandLabel){
   document.getElementById('catFilterMenu').classList.remove('open');
   document.getElementById('catFilterBtn').setAttribute('aria-expanded', 'false');
   document.getElementById('bicicrossSubcats').style.display = 'flex';
-  document.getElementById('catalogo').classList.add('bicicross-mode');
-  document.getElementById('catalogo').classList.remove('twitter-mode');
+  setCatalogHero('bicicross-mode');
   var subcatLabel = categoryLabels[subcat] || subcat;
   var visibleCount = 0;
   document.getElementById('catalogo').querySelectorAll('.cat-card').forEach(function(card){
@@ -6176,8 +6205,7 @@ function filterComponenteSubcat(subcat){
   document.getElementById('catFilterMenu').classList.remove('open');
   document.getElementById('catFilterBtn').setAttribute('aria-expanded', 'false');
   document.getElementById('bicicrossSubcats').style.display = 'none';
-  document.getElementById('catalogo').classList.remove('bicicross-mode');
-  document.getElementById('catalogo').classList.remove('twitter-mode');
+  setCatalogHero(null);
   var subcatLabel = componentesSubcatLabels[subcat] || subcat;
   var visibleCount = 0;
   document.getElementById('catalogo').querySelectorAll('.cat-card').forEach(function(card){
@@ -6205,8 +6233,7 @@ function filterCascoBrand(brand){
   document.getElementById('catFilterMenu').classList.remove('open');
   document.getElementById('catFilterBtn').setAttribute('aria-expanded', 'false');
   document.getElementById('bicicrossSubcats').style.display = 'none';
-  document.getElementById('catalogo').classList.remove('bicicross-mode');
-  document.getElementById('catalogo').classList.remove('twitter-mode');
+  setCatalogHero('cascos-mode');
   var brandLabel = brand === 'patriot' ? 'Patriot' : (brand === 'troylee' ? 'Troy Lee' : 'Fox');
   var visibleCount = 0;
   document.getElementById('catalogo').querySelectorAll('.cat-card').forEach(function(card){
@@ -6234,8 +6261,7 @@ function filterProteccionBrand(brand){
   document.getElementById('catFilterMenu').classList.remove('open');
   document.getElementById('catFilterBtn').setAttribute('aria-expanded', 'false');
   document.getElementById('bicicrossSubcats').style.display = 'none';
-  document.getElementById('catalogo').classList.remove('bicicross-mode');
-  document.getElementById('catalogo').classList.remove('twitter-mode');
+  setCatalogHero(null);
   var brandLabel = brand === 'fox-nino' ? 'Fox Niño' : (brand === 'troylee' ? 'Troy Lee' : 'Fox');
   var visibleCount = 0;
   document.getElementById('catalogo').querySelectorAll('.cat-card').forEach(function(card){
@@ -6263,8 +6289,7 @@ function filterAllTroyLee(){
   document.getElementById('catFilterMenu').classList.remove('open');
   document.getElementById('catFilterBtn').setAttribute('aria-expanded', 'false');
   document.getElementById('bicicrossSubcats').style.display = 'none';
-  document.getElementById('catalogo').classList.remove('bicicross-mode');
-  document.getElementById('catalogo').classList.remove('twitter-mode');
+  setCatalogHero('tld-mode');
   var visibleCount = 0;
   document.getElementById('catalogo').querySelectorAll('.cat-card').forEach(function(card){
     var show = (card.getAttribute('data-brand') === 'troylee') && !card.classList.contains('sheet-hidden');
@@ -6292,8 +6317,7 @@ function filterAllFox(){
   document.getElementById('catFilterMenu').classList.remove('open');
   document.getElementById('catFilterBtn').setAttribute('aria-expanded', 'false');
   document.getElementById('bicicrossSubcats').style.display = 'none';
-  document.getElementById('catalogo').classList.remove('bicicross-mode');
-  document.getElementById('catalogo').classList.remove('twitter-mode');
+  setCatalogHero(null);
   var visibleCount = 0;
   document.getElementById('catalogo').querySelectorAll('.cat-card').forEach(function(card){
     var brand = card.getAttribute('data-brand');
@@ -6337,8 +6361,7 @@ function resetCategoryFilter(){
   document.getElementById('catFilterStatus').style.display = 'none';
   document.getElementById('catEmptyState').style.display = 'none';
   document.getElementById('bicicrossSubcats').style.display = 'none';
-  document.getElementById('catalogo').classList.remove('bicicross-mode');
-  document.getElementById('catalogo').classList.remove('twitter-mode');
+  setCatalogHero(null);
   var brandBadge = document.getElementById('catBrandBadge');
   if(brandBadge) brandBadge.style.display = 'none';
   applyBikeFilters();
@@ -6633,8 +6656,7 @@ function runSearchResults(q){
     var any = Array.prototype.some.call(row.querySelectorAll('.cat-card'), function(c){ return c.style.display !== 'none'; });
     row.style.display = any ? 'block' : 'none';
   });
-  catalogo.classList.remove('bicicross-mode');
-  catalogo.classList.remove('twitter-mode');
+  setCatalogHero(null);
   document.getElementById('bicicrossSubcats').style.display = 'none';
   document.getElementById('catBrandBadge').style.display = 'none';
   document.getElementById('catFilterWrap').style.display = 'none';
