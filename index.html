@@ -990,6 +990,9 @@
     z-index:0;
   }
   .cat-hero .wrap{position:relative; z-index:1;}
+  .cat-hero-video-bg{background-image:none; background-color:#0d0e0c;}
+  .cat-hero-video{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:-1;}
+  #catalogo.twitter-mode .cat-hero-twitter{display:block;}
   .cat-hero-eyebrow{
     display:flex; align-items:center; gap:10px;
     font-family:'Poppins',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:0.1em;
@@ -1001,9 +1004,9 @@
   }
   .cat-hero-title .out{color:var(--accent);}
   .cat-hero-sub{color:rgba(244,243,238,0.8); font-family:'Poppins',sans-serif; font-weight:500; font-size:1rem; max-width:460px;}
-  #catalogo.bicicross-mode .cat-hero{display:block;}
-  #catalogo > .wrap:nth-of-type(2){ position:relative; z-index:2; }
-  #catalogo > .wrap:nth-of-type(3){ position:relative; z-index:1; }
+  #catalogo.bicicross-mode .cat-hero-bicicross{display:block;}
+  #catalogo > .wrap.cat-filter-wrap-outer{ position:relative; z-index:2; }
+  #catalogo > .wrap.cat-content-wrap{ position:relative; z-index:1; }
   @media (max-width:640px){
     .cat-hero{padding:88px 24px 48px;}
     .cat-hero-eyebrow{font-size:0.68rem; margin-bottom:12px;}
@@ -1132,8 +1135,8 @@
 
   section{padding:90px 32px; border-bottom:1px solid var(--line);}
   .section-head{
-    display:flex; justify-content:space-between; align-items:flex-end;
-    margin-bottom:56px; gap:20px; flex-wrap:wrap;
+    display:flex; justify-content:flex-end; align-items:flex-end;
+    margin-bottom:22px; gap:20px; flex-wrap:wrap;
   }
   .section-head h2{font-size:clamp(2rem,4vw,2.8rem);}
   .cat-head-right{display:flex; align-items:center; gap:18px; flex-wrap:wrap;}
@@ -1858,20 +1861,29 @@
 </section>
 
 <section id="catalogo">
-  <div class="cat-hero" id="catBicicrossHero">
+  <div class="cat-hero cat-hero-twitter cat-hero-video-bg" id="catTwitterHero">
+    <video class="cat-hero-video" autoplay muted loop playsinline disablepictureinpicture preload="auto">
+      <source src="img/twitter-hero.mp4" type="video/mp4">
+    </video>
+    <div class="wrap">
+      <div class="cat-hero-eyebrow"><span class="sprocket" aria-hidden="true"></span>Categoría</div>
+      <h2 class="cat-hero-title">TWITTER<span class="out"> BIKES</span></h2>
+      <p class="cat-hero-sub">Bicicletas diseñadas para rendimiento y confiabilidad, disponibles en nuestra red de distribuidores oficiales en todo el país.</p>
+    </div>
+  </div>
+  <div class="cat-hero cat-hero-bicicross" id="catBicicrossHero">
     <div class="wrap">
       <div class="cat-hero-eyebrow"><span class="sprocket" aria-hidden="true"></span>Categoría</div>
       <h2 class="cat-hero-title">BICI<span class="out">CROSS</span></h2>
       <p class="cat-hero-sub">Bicis, cuadros y repuestos para competir.</p>
     </div>
   </div>
-  <div class="wrap">
+  <div class="wrap cat-filter-wrap-outer">
     <div id="catFilterStatus" class="cat-filter-status" style="display:none;">
       <span class="cat-filter-label"></span>
       <button type="button" class="cat-filter-reset" onclick="resetCategoryFilter()">Volver al inicio</button>
     </div>
     <div class="section-head">
-      <h2 style="font-family:'Archivo Black',sans-serif; text-transform:none; font-size:1.6rem;">01 — Catálogo</h2>
       <div class="cat-head-right">
         <div class="cat-filter-wrap bike-extra-filter">
           <button type="button" class="cat-filter-btn" id="sizeFilterBtn" aria-haspopup="true" aria-expanded="false" onclick="toggleSizeFilterMenu()">
@@ -1917,7 +1929,7 @@
       </div>
     </div>
   </div>
-  <div class="wrap">
+  <div class="wrap cat-content-wrap">
     <div id="searchEmptyMsg" class="cat-empty" style="display:none;"></div>
     <div id="catEmptyState" class="cat-empty" style="display:none;">
       Todavía no tenemos productos cargados en esta categoría. ¡Volvé pronto!
@@ -3793,7 +3805,7 @@
   var catGrid = document.getElementById('categoriasPrincipales');
   if(!catalogo || !catGrid) return;
   function syncCatGrid(){
-    catGrid.style.display = catalogo.classList.contains('bicicross-mode') ? 'none' : '';
+    catGrid.style.display = (catalogo.classList.contains('bicicross-mode') || catalogo.classList.contains('twitter-mode')) ? 'none' : '';
   }
   syncCatGrid();
   new MutationObserver(syncCatGrid).observe(catalogo, {attributes:true, attributeFilter:['class']});
@@ -6072,6 +6084,7 @@ function goToCategory(catKey){
     document.getElementById('catEmptyState').style.display = visibleCountTw === 0 ? 'block' : 'none';
     document.getElementById('bicicrossSubcats').style.display = 'none';
     document.getElementById('catalogo').classList.remove('bicicross-mode');
+    document.getElementById('catalogo').classList.add('twitter-mode');
     var brandBadgeTw = document.getElementById('catBrandBadge');
     if(brandBadgeTw) brandBadgeTw.style.display = 'flex';
     applyBikeFilters();
@@ -6095,6 +6108,7 @@ function goToCategory(catKey){
     document.getElementById('catEmptyState').style.display = visibleCountAll === 0 ? 'block' : 'none';
     document.getElementById('bicicrossSubcats').style.display = 'none';
     document.getElementById('catalogo').classList.remove('bicicross-mode');
+    document.getElementById('catalogo').classList.remove('twitter-mode');
     var brandBadgeAll = document.getElementById('catBrandBadge');
     if(brandBadgeAll) brandBadgeAll.style.display = 'none';
     applyBikeFilters();
@@ -6104,6 +6118,7 @@ function goToCategory(catKey){
   }
   document.getElementById('bicicrossSubcats').style.display = bicicrossSubcatKeys.indexOf(catKey) !== -1 ? 'flex' : 'none';
   document.getElementById('catalogo').classList.toggle('bicicross-mode', bicicrossSubcatKeys.indexOf(catKey) !== -1);
+  document.getElementById('catalogo').classList.remove('twitter-mode');
   var label = categoryLabels[catKey] || catKey;
   var cards = document.getElementById('catalogo').querySelectorAll('.cat-card');
   var visibleCount = 0;
@@ -6133,6 +6148,7 @@ function filterBicicrossBrand(subcat, brand, brandLabel){
   document.getElementById('catFilterBtn').setAttribute('aria-expanded', 'false');
   document.getElementById('bicicrossSubcats').style.display = 'flex';
   document.getElementById('catalogo').classList.add('bicicross-mode');
+  document.getElementById('catalogo').classList.remove('twitter-mode');
   var subcatLabel = categoryLabels[subcat] || subcat;
   var visibleCount = 0;
   document.getElementById('catalogo').querySelectorAll('.cat-card').forEach(function(card){
@@ -6161,6 +6177,7 @@ function filterComponenteSubcat(subcat){
   document.getElementById('catFilterBtn').setAttribute('aria-expanded', 'false');
   document.getElementById('bicicrossSubcats').style.display = 'none';
   document.getElementById('catalogo').classList.remove('bicicross-mode');
+  document.getElementById('catalogo').classList.remove('twitter-mode');
   var subcatLabel = componentesSubcatLabels[subcat] || subcat;
   var visibleCount = 0;
   document.getElementById('catalogo').querySelectorAll('.cat-card').forEach(function(card){
@@ -6189,6 +6206,7 @@ function filterCascoBrand(brand){
   document.getElementById('catFilterBtn').setAttribute('aria-expanded', 'false');
   document.getElementById('bicicrossSubcats').style.display = 'none';
   document.getElementById('catalogo').classList.remove('bicicross-mode');
+  document.getElementById('catalogo').classList.remove('twitter-mode');
   var brandLabel = brand === 'patriot' ? 'Patriot' : (brand === 'troylee' ? 'Troy Lee' : 'Fox');
   var visibleCount = 0;
   document.getElementById('catalogo').querySelectorAll('.cat-card').forEach(function(card){
@@ -6217,6 +6235,7 @@ function filterProteccionBrand(brand){
   document.getElementById('catFilterBtn').setAttribute('aria-expanded', 'false');
   document.getElementById('bicicrossSubcats').style.display = 'none';
   document.getElementById('catalogo').classList.remove('bicicross-mode');
+  document.getElementById('catalogo').classList.remove('twitter-mode');
   var brandLabel = brand === 'fox-nino' ? 'Fox Niño' : (brand === 'troylee' ? 'Troy Lee' : 'Fox');
   var visibleCount = 0;
   document.getElementById('catalogo').querySelectorAll('.cat-card').forEach(function(card){
@@ -6245,6 +6264,7 @@ function filterAllTroyLee(){
   document.getElementById('catFilterBtn').setAttribute('aria-expanded', 'false');
   document.getElementById('bicicrossSubcats').style.display = 'none';
   document.getElementById('catalogo').classList.remove('bicicross-mode');
+  document.getElementById('catalogo').classList.remove('twitter-mode');
   var visibleCount = 0;
   document.getElementById('catalogo').querySelectorAll('.cat-card').forEach(function(card){
     var show = (card.getAttribute('data-brand') === 'troylee') && !card.classList.contains('sheet-hidden');
@@ -6273,6 +6293,7 @@ function filterAllFox(){
   document.getElementById('catFilterBtn').setAttribute('aria-expanded', 'false');
   document.getElementById('bicicrossSubcats').style.display = 'none';
   document.getElementById('catalogo').classList.remove('bicicross-mode');
+  document.getElementById('catalogo').classList.remove('twitter-mode');
   var visibleCount = 0;
   document.getElementById('catalogo').querySelectorAll('.cat-card').forEach(function(card){
     var brand = card.getAttribute('data-brand');
@@ -6317,6 +6338,7 @@ function resetCategoryFilter(){
   document.getElementById('catEmptyState').style.display = 'none';
   document.getElementById('bicicrossSubcats').style.display = 'none';
   document.getElementById('catalogo').classList.remove('bicicross-mode');
+  document.getElementById('catalogo').classList.remove('twitter-mode');
   var brandBadge = document.getElementById('catBrandBadge');
   if(brandBadge) brandBadge.style.display = 'none';
   applyBikeFilters();
@@ -6612,6 +6634,7 @@ function runSearchResults(q){
     row.style.display = any ? 'block' : 'none';
   });
   catalogo.classList.remove('bicicross-mode');
+  catalogo.classList.remove('twitter-mode');
   document.getElementById('bicicrossSubcats').style.display = 'none';
   document.getElementById('catBrandBadge').style.display = 'none';
   document.getElementById('catFilterWrap').style.display = 'none';
