@@ -14,9 +14,14 @@
 <meta property="og:description" content="Distribuidor oficial de bicicletas Twitter en Argentina. Ruta, Mountain, Gravel, cascos y repuestos. Envíos a todo el país.">
 <meta property="og:url" content="https://mendezrace.bike/">
 <meta property="og:locale" content="es_AR">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="https://mendezrace.bike/img/og-share.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Mendezrace - Distribuidor oficial Twitter Bikes">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Mendezrace | Distribuidor oficial Twitter Bikes">
 <meta name="twitter:description" content="Distribuidor oficial de bicicletas Twitter en Argentina. Ruta, Mountain, Gravel, cascos y repuestos.">
+<meta name="twitter:image" content="https://mendezrace.bike/img/og-share.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -3821,20 +3826,6 @@
     <div class="cat-rows" id="catRows"></div>
   </div>
 </section>
-<script>
-(function(){
-  var catalogo = document.getElementById('catalogo');
-  var catGrid = document.getElementById('categoriasPrincipales');
-  if(!catalogo || !catGrid) return;
-  var HERO_MODES_HIDE_GRID = ['bicicross-mode', 'twitter-mode', 'cascos-mode', 'tld-mode'];
-  function syncCatGrid(){
-    var hide = HERO_MODES_HIDE_GRID.some(function(m){ return catalogo.classList.contains(m); });
-    catGrid.style.display = hide ? 'none' : '';
-  }
-  syncCatGrid();
-  new MutationObserver(syncCatGrid).observe(catalogo, {attributes:true, attributeFilter:['class']});
-})();
-</script>
 
 <section id="googleReviews" class="cat-shop">
   <div class="wrap">
@@ -6056,6 +6047,8 @@ function setCatalogHero(mode){
   var cl = document.getElementById('catalogo').classList;
   CAT_HERO_MODES.forEach(function(k){ cl.remove(k); });
   if(mode) cl.add(mode);
+  var catGrid = document.getElementById('categoriasPrincipales');
+  if(catGrid) catGrid.style.display = mode ? 'none' : '';
 }
 
 function goToCategory(catKey){
